@@ -1,0 +1,16 @@
+[
+    {
+        "name" : "manish",
+        "newmessage": ["hello, this is manish"],
+        "onlineStatus": true,
+        "image": "https://stimg.cardekho.com/images/carexteriorimages/630x420/Lamborghini/Huracan-EVO/10643/1690010999692/front-left-side-47.jpg",
+        "id" : "fgejgfs6768767"
+    },
+    {
+        "name" : "Anshal",
+        "newmessage":[ "Elliot Alderson." , "Elliot Alderson is my friend."],
+        "onlineStatus": false,
+        "image": "https://images.pexels.com/photos/12882894/pexels-photo-12882894.jpeg?cs=srgb&dl=pexels-stephanlouis-12882894.jpg&fm=jpg",
+        "id" : "fgejgfs6768cszczczcszc767"
+    }
+]
