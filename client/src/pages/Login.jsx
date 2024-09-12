@@ -1,35 +1,85 @@
-import React  from 'react'
-import { Link } from 'react-router-dom'
-// import {RemoveRedEye , PanoramaFishEyeSharp} from '@mui/icons-material'
-export default function Login() {
+import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import Recaptcha from '../shared/Recaptcha';
+import { ApisComman } from '../utils/ApisComman';
+import GoogleAuth from '../components/GoogleAuth';
+import { useFormsMutation } from '../redux/Apis/Apis';
 
-  // const [Showpassword  , setShowpassword] = useState(false)
-  const Loginuser = (e) => {
-      e.preventDefault()
+
+export default function Login (){
+
+  const [RecaptchaVal, setRecaptchaVal] = useState(false);
+  const [recaptchaToken, setrecaptchaToken] = useState("");
+  const [Error, setError] = useState("");
+  const recaptchaRef = useRef(null)
+  const [LoginUser, { isLoading  }] = useFormsMutation()
+
+
+
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+ 
+    const data = new FormData(e.target);
+    data.append("hcaptchaToken", recaptchaToken);
+
+    
+    const datatosend = Object.fromEntries(data.entries());
+
+    console.log(datatosend)
+
+    const response = await ApisComman(LoginUser , datatosend , "login" , setError ,  "POST" , null , RecaptchaVal , recaptchaRef)
+    if (response) {
+     
+      window.location.href = "http://localhost:3000"
   }
-  return (
+
   
-    <div className='w-[100vw] h-[100vh] flex items-center justify-center bg-gray-900'>
+  };
 
-      <form onSubmit={Loginuser} className='w-[400px] p-[20px] bg-white flex flex-col gap-[20px] items-center justify-center rounded-lg'>
-      <h1 className='w-full'>LOGIN</h1>
-        <input type="text" name='userremail' placeholder='Enter username or email' className='w-full p-[10px] outline-none border-2 border-black rounded-lg' />
-        <div className='flex w-full'>
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-3 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center">Login</h2>
+        {Error && <p className='text-[crimson] font-bold'>{Error}</p>}
+        <GoogleAuth text={"Login with google"} />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="useremail" id='useremail' className="block text-sm font-medium text-gray-700">Email or username</label>
+            <input
+              type="text"
+              id="useremail"
 
-        <input type='password' name='password' placeholder='Enter password'  className='w-full p-[10px] border-2 border-black rounded-lg'/>
-       
-        </div>
+              className="w-full px-4 py-2 mt-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              name="useremail"
 
-
-        <Link>Reset password</Link>
-        <button className='rounded-full bg-cyan-500 w-full p-[10px]' type='submit'>Login</button>
-
-        <button  className='rounded-full bg-gray-100 w-full p-[10px] border-2 border-black'>Google</button>
-        
-        <Link to='/register'>New? Register now!</Link>
-      </form>
-
-
+         
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              className="w-full px-4 py-2 mt-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+         
+            />
+          </div>
+          {isLoading ? "Loading..." : <button
+            type="submit"
+            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Login
+          </button>}
+        </form>
+        <Link to="/forgotpassword" className='w-full text-center flex items-center justify-center text-cyan-500 font-bold'>Forgot password?</Link>
+        <Recaptcha recaptchaRef={recaptchaRef} setRecaptchaVal={setRecaptchaVal} setrecaptchaToken={setrecaptchaToken} setError={setError} />
+        <Link to="/register" className='w-full text-center flex items-center justify-center text-cyan-500 font-bold'>New? Create an Account!</Link>
+      </div>
     </div>
-  )
-}
+
+  );
+};
+
+

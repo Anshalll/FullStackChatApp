@@ -1,68 +1,83 @@
-import React, { lazy, Suspense } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import ProtectedRoute from './components/auth/ProtectedRoutes'
-import { LayoutLoader } from './components/Loaders/Loaders'
+import React, { useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import NotFound from './components/NotFound';
+import ProtectedRoute from './auth/ProtectedRoute';
+import { useGetAccessDataQuery } from './redux/Apis/Apis.js';
+import {useDispatch , useSelector} from 'react-redux'
+import {Auth , UnAuth} from './redux/AuthSlice/slice.js'
+import Chat from './pages/Chat.jsx';
+import Profile from './pages/Profile.jsx';
+import { fetchUser } from './redux/userdataslice.js';
 
-
-
-const Home = lazy(() => import('./pages/Home'))
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Chat = lazy(() => import('./pages/Chat'))
-const Group = lazy(() => import('./pages/Group'))
-const Notfound = lazy(() => import('./pages/NotFound'))
-const ChatHome = lazy(() => import('./components/ChatHome'))
-const Profile = lazy(() => import('./pages/Profile'))
-const Notifications = lazy(() => import('./pages/Notifications.jsx'))
-const CreateGroup = lazy(() => import('./pages/CreateGroup.jsx'))
-const GroupInfo = lazy(() => import('./pages/GroupInfo.jsx'))
-
-
+const Home = lazy(() => import("./pages/Home.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const Register = lazy(() => import("./pages/Register.jsx"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+const Resetpass = lazy(() => import("./pages/Resetpass.jsx"));
 
 
 export default function App() {
 
-  let user = true
+  const dispatch = useDispatch()
+  const {data, isLoading , error} = useGetAccessDataQuery()
+  const {user , loader}  = useSelector((state) => state.authslice)
+
+ 
+  useEffect(() => {
+
+  
+
+
+
+   
+    if (!isLoading) {
+     
+       
+     if (data) {
+       dispatch(Auth(data.auth))
+       dispatch(fetchUser("getdata"))
+     }
+     else{
+      dispatch(UnAuth(error.data.auth))
+
+     }
+      
+  
+    }  
+
+    
+  
+  }, [isLoading, data, error , dispatch ]);
+
 
   return (
-
-
-
-
     <Router>
-
-      <Suspense fallback={<LayoutLoader />}>
+      {
+        loader? <p>Loading....</p> : 
+      <Suspense fallback={<div>Loading...</div>}>
         <Routes>
-          <Route element={<ProtectedRoute user={user} />}>
-
-            <Route path='/' element={<Home />} />
-            <Route path='/chat' element={<ChatHome />} />
-            <Route path='/group' element={<ChatHome />} />
-
-            <Route path='/chat/:chatid' element={<Chat />} />
-            <Route path='/group/:groupid' element={<Group />} />
-            <Route path='/profile' element={<Profile />} />
-            <Route path='/notifications' element={<Notifications />} />
-            <Route path='/creategroup' element={<CreateGroup />} />
-            <Route path='/groupinfo' element={<GroupInfo />} />
-
-
-
-
-          </Route>
-
-
-          <Route element={<ProtectedRoute user={!user} redirect='/' />}>
+      
+          <Route element={<ProtectedRoute user={!user} redirect="/" />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgotpassword" element={<ForgotPassword />} />
+            <Route path="/resetpass/:id" element={<Resetpass />} />
           </Route>
 
-          <Route path='*' element={<Notfound />} />
+        
+          <Route element={<ProtectedRoute user={user} />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/profile" element={<Profile />} />
 
+          
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
 
-
+}
     </Router>
-  )
+  );
 }
