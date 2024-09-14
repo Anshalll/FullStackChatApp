@@ -1,5 +1,5 @@
 import ValidateRegister from '../utils/Validators.js'
-import { RegisterModel } from '../models/registerModel.js'
+import { RegisterModel } from '../models/Models.js'
 import bcrypt from 'bcrypt'
 import { otpModel } from '../models/otp.js'
 import MailedData from '../utils/RegisterMailData.js'
@@ -9,7 +9,7 @@ import { CheckFields } from '../shared/CheckFields.js'
 import { ResetpassModel } from '../models/ResetpassModel.js'
 import { verifyPassUri } from '../utils/VerifyresetPassuri.js'
 import { ValidatePassword } from '../utils/Passwordvalidator.js'
-import { UserExtraModel } from '../models/chatappmodel.js'
+import { UserExtraModel } from '../models/Models.js'
 
 
 export const Index = async (req, res) => {
@@ -242,14 +242,32 @@ export const GoogleAuth = async (req, res) => {
 export const Getuserdata = async (req, res) => {
 
        const {id} = req
+      
        
        const user = await RegisterModel.findById(id).select('-password')
-       console.log(user)
-       res.json({ user })
+       const userextras = await UserExtraModel.findOne({ belongsto: user._id })
+       const data = [user , userextras]
+       
+       
+        
+       res.json({ data })
 }
 
 
 export const UpdateExtras  = async (req, res) => {
+  
+    
+    const {username  , name , bio , interests , uid} = req.body
+    
+    
+    let user_interests = interests.split(",")
+   
+    
+    await RegisterModel.findByIdAndUpdate(uid , {username: username , name: name} , {new: true})
+
+    await UserExtraModel.findOneAndUpdate({ belongsto: uid } , {bio: bio , interests: user_interests} , {new: true , upsert: true} )
+
+    
     
     res.json({msg: "This is anshal!"})
 }

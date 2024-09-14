@@ -1,43 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function EditState({ Data  , HandleInput , Name, Bio, Username}) {
-    const [Interests, setInterests] = useState([]);
-    const [InterestsError, setInterestsError] = useState(null);
+export default function EditState({   HandleInput , Name, Bio, Username , Interests , HandleInterests , InterestsError , setInterests , setInterestsError }) {
+  
+  
 
 
-    const HandleInterests = (e) => {
-        if (e.key === ',') {
-            e.preventDefault();
-            const value = e.target.value.trim();
-            if (Interests.length < 5) {
-                if (value && !Interests.includes(value)) {
-                    setInterests((prevInterests) => [...prevInterests, value]);
-                    e.target.value = '';
-                }
-            } else {
-                setInterestsError("Max interests added");
-            }
-        }
-    };
-
+ 
     const RemoveInterests = (index) => {
         setInterests((prevInterests) => prevInterests.filter((_, i) => i !== index));
     };
 
    
+    
 
-    useEffect(() => {
-        if (InterestsError) {
-            const timer = setTimeout(() => {
-                setInterestsError(null);
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [InterestsError]);
 
     return (
-        <div className='flex flex-col gap-[20px]'>
+        <div className='flex flex-col gap-[20px]  w-[400px] p-[20px] rounded-lg min-h-[100px] max-h-[1000px]'>
             <input
                 type="text"
                 className='border-2 border-gray-200 rounded-md outline-none p-[7px]'
@@ -65,9 +44,9 @@ export default function EditState({ Data  , HandleInput , Name, Bio, Username}) 
                 onChange={(e) => HandleInput(e, "bio")}
             />
 
-            <div className='flex gap-[20px] items-center'>
+            <div className='flex flex-wrap w-full gap-[20px] items-center'>
                 {Interests.map((value, index) => (
-                    <p key={index} className='bg-[crimson] relative px-[20px] py-[7px] text-white rounded-lg'>
+                   value !== "" &&    <p key={index} className='bg-[crimson] relative px-[20px] py-[7px] text-white rounded-lg'>
                         {value}
                         <span
                             className='cursor-pointer absolute left-[90%] bottom-[60%]'

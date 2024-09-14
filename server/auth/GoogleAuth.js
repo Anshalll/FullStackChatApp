@@ -1,7 +1,7 @@
 import passport from 'passport'
 import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth'
 import { GenerateUsername } from '../utils/GenerateVals.js'
-import { RegisterModel } from '../models/registerModel.js'
+import { RegisterModel } from '../models/Models.js'
 export const GoogleAuth = () => {
 
 

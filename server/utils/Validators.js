@@ -1,8 +1,9 @@
 import EmailValidator from 'email-validator'
 import ValidationError from './ValidationError.js'
 import { ValidatePassword } from './Passwordvalidator.js'
-import { RegisterModel } from '../models/registerModel.js'
+import { RegisterModel } from '../models/Models.js'
 import { CheckFields } from '../shared/CheckFields.js'
+
 const ValidateRegister = async (data , type) => {
    
     CheckFields(data , ["username" , "password" , "email" , "cpass" , "name" , type === "register" ?  "value" : null , "hcaptchaToken"])

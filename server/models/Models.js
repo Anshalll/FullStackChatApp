@@ -9,12 +9,37 @@ const UserExtra = new mongoose.Schema({
     bio: String,
     followers : String,
     following: String,
-    interset: Array,
+    interests: Array,
+    Groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
+    posts:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'posts' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }]
 
 })
 
+const register_Model = new mongoose.Schema({
+
+    name: {
+        type: String,
+        required: true
+    },
+    username:{
+        type: String,
+        required: true
+    },
+    email:{
+        type: String,
+        required: true
+    },
+    password:{
+        type: String,
+        
+    }
+
+})
+
+
+export const RegisterModel = mongoose.model('register' , register_Model)
 
 
 
@@ -31,6 +56,8 @@ const ChatMessageSchema = new mongoose.Schema({
     belongsto: { type: mongoose.Schema.Types.ObjectId, ref: 'chatroom' },  
     timestamp: { type: Date, default: Date.now } 
 });
+
+
 
 
 export const ChatMessageModel = mongoose.model("chatmessage", ChatMessageSchema); 
