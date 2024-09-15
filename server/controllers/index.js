@@ -14,20 +14,20 @@ import { UserExtraModel } from '../models/Models.js'
 
 export const Index = async (req, res) => {
 
-    
 
-    res.status(200).json({  auth: true})
+
+    res.status(200).json({ auth: true })
 
 }
 
 export const VerifyRegister = async (req, res) => {
-    
-    
+
+
     const { email } = req.body
-    
+
     try {
 
-        await ValidateRegister(req.body  , "verifyregister")
+        await ValidateRegister(req.body, "verifyregister")
 
         const sendMailInstance = await new MailedData(otpModel, email, "otp", "Max otp sent!");
         sendMailInstance.mainFunc().then(() => {
@@ -41,7 +41,7 @@ export const VerifyRegister = async (req, res) => {
 
     } catch (error) {
 
-       
+
 
         res.status(401).json({ error: error.message })
 
@@ -52,7 +52,7 @@ export const Register = async (req, res) => {
 
 
     const { username, name, email, password, value } = req.body
-   
+
 
     try {
 
@@ -78,7 +78,7 @@ export const Login = async (req, res) => {
 
     try {
 
-        CheckFields(req.body, ["useremail", "password" , "hcaptchaToken"])
+        CheckFields(req.body, ["useremail", "password", "hcaptchaToken"])
 
         const { useremail, password } = req.body
 
@@ -105,14 +105,14 @@ export const Login = async (req, res) => {
 
 
                     await setCookie(res, user.id)
-                
+
                     res.status(200).json({ auth: true })
 
 
                 }
 
             } catch (error) {
-          
+
                 res.status(401).json({ error: error.message })
 
             }
@@ -120,7 +120,7 @@ export const Login = async (req, res) => {
         }
 
     } catch (error) {
-  
+
         res.status(401).json({ error: error.message })
 
     }
@@ -133,10 +133,10 @@ export const ResetpassUrlGeneration = async (req, res) => {
 
     try {
 
-        CheckFields(req.body , ["useremail" , "hcaptchaToken"])
+        CheckFields(req.body, ["useremail", "hcaptchaToken"])
 
         const user = await RegisterModel.findOne({ $or: [{ username: useremail }, { email: useremail }] })
-        
+
         if (!user) {
             throw new Error("No user found!")
         }
@@ -145,7 +145,7 @@ export const ResetpassUrlGeneration = async (req, res) => {
 
         resetpassuri.mainFunc().then(() => {
 
-            res.status(200).json({ msg: "Password reset link sent!" , email: user.email })
+            res.status(200).json({ msg: "Password reset link sent!", email: user.email })
 
         }).catch((error) => {
 
@@ -168,17 +168,17 @@ export const VerifyPassResetUrl = async (req, res) => {
     try {
 
         const { url } = req.body
-      
 
-        await verifyPassUri(`${process.env.ORIGIN}/resetpass/${url}` , req.body , ["url"])
+
+        await verifyPassUri(`${process.env.ORIGIN}/resetpass/${url}`, req.body, ["url"])
         res.json({ verify: true })
 
     } catch (error) {
 
-       
-        res.status(400).json({ error: error.message  })
 
-    }   
+        res.status(400).json({ error: error.message })
+
+    }
 
 
 
@@ -189,30 +189,30 @@ export const UpdatePassUrl = async (req, res) => {
 
     try {
 
-        const { url  , pass, cpass} = req.body
-        
-        const user = await verifyPassUri(`${process.env.ORIGIN}/resetpass/${url}` , req.body , ["url" , "pass" , "cpass"])
+        const { url, pass, cpass } = req.body
+
+        const user = await verifyPassUri(`${process.env.ORIGIN}/resetpass/${url}`, req.body, ["url", "pass", "cpass"])
 
         if (!pass || !cpass) {
 
             throw new Error('All fields are required!')
 
         }
-        await ValidatePassword(pass, 5 , cpass)
+        await ValidatePassword(pass, 5, cpass)
 
-        
+
         const hashpwd = await bcrypt.hash(pass, 10)
-        await RegisterModel.updateOne({ email: user } , {password: hashpwd})
+        await RegisterModel.updateOne({ email: user }, { password: hashpwd })
         await ResetpassModel.deleteMany({ email: user })
         res.json({ update: true })
 
 
 
     } catch (error) {
-        
+
         res.status(400).json({ error: error.message })
     }
-    
+
 
 
 }
@@ -221,56 +221,66 @@ export const Logout = (req, res) => {
 
     res.cookie('validation_token', '', { expires: new Date(0) });
     res.json({ logout: true })
-    
+
 }
 
 export const GoogleAuth = async (req, res) => {
 
     try {
 
-        const {id} = req.user
-        await setCookie(res , id)
+        const { id } = req.user
+        await setCookie(res, id)
         // await setCookie(res , _id)
         res.redirect('http://localhost:3000/')
 
     } catch (error) {
-        
+
         res.redirect('http://localhost:3000/login')
     }
-    
+
 }
 
 export const Getuserdata = async (req, res) => {
 
-     
-       const {id} = req
-      
-       
-       const user = await RegisterModel.findById(id).select('-password')
+    try {
+        const { id } = req
 
-       const userextras = await UserExtraModel.findOne({ belongsto: user._id })
-       const data = [user , userextras]
-       
-       
-        
-       res.json({ data })
+
+        const user = await RegisterModel.findById(id).select('-password')
+
+        const userextras = await UserExtraModel.findOne({ belongsto: user._id })
+        const data = [user, userextras]
+        res.json({ data })
+
+    } catch (error) {
+   
+        res.clearCookie('validation_token', {
+            httpOnly: true,
+            secure: process.env.SITE_MODE === "production",
+        })
+        res.redirect("http://localhost:3000/login")
+    }
+
+
+
+
 }
 
 
-export const UpdateExtras  = async (req, res) => {
-  
-    
-    const {username  , name , bio , interests , uid} = req.body
-    
-    
+export const UpdateExtras = async (req, res) => {
+
+
+    const { username, name, bio, interests, uid } = req.body
+
+
     let user_interests = interests.split(",")
-   
-    
-    await RegisterModel.findByIdAndUpdate(uid , {username: username , name: name} , {new: true})
 
-    await UserExtraModel.findOneAndUpdate({ belongsto: uid } , {bio: bio , interests: user_interests} , {new: true , upsert: true} )
 
-    
-    
-    res.json({msg: "This is anshal!"})
+    await RegisterModel.findByIdAndUpdate(uid, { username: username, name: name }, { new: true })
+
+    await UserExtraModel.findOneAndUpdate({ belongsto: uid }, { bio: bio, interests: user_interests }, { new: true, upsert: true })
+
+
+
+    res.json({ msg: "This is anshal!" })
 }

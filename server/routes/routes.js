@@ -3,6 +3,9 @@ import { Index, VerifyRegister, Login, Register, ResetpassUrlGeneration, VerifyP
 import { ValidateUser } from '../middleware/ValidateUserMiddleware.js'
 import { Recaptcha } from '../middleware/RecaptchaMiddleware.js'
 import passport from 'passport'
+import { upload } from '../utils/Multerhelper.js'
+
+
 export const Router = express.Router()
 
 
@@ -21,3 +24,6 @@ Router.get("/google/auth/callback", passport.authenticate('google', { failureRed
 
 Router.get('/api/getdata' , ValidateUser , Getuserdata )
 Router.post('/api/updatextras' , ValidateUser , UpdateExtras)
+Router.post('/api/profiledp' , ValidateUser ,  upload.single('dp') , () => {
+
+})

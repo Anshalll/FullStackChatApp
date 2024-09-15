@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { ResetpassModel } from '../models/ResetpassModel.js'
+
 
 export const GenerateOtp = (length) => {
 
