@@ -17,6 +17,7 @@ export const Index = async (req, res) => {
     
 
     res.status(200).json({  auth: true})
+
 }
 
 export const VerifyRegister = async (req, res) => {
@@ -241,10 +242,12 @@ export const GoogleAuth = async (req, res) => {
 
 export const Getuserdata = async (req, res) => {
 
+     
        const {id} = req
       
        
        const user = await RegisterModel.findById(id).select('-password')
+
        const userextras = await UserExtraModel.findOne({ belongsto: user._id })
        const data = [user , userextras]
        

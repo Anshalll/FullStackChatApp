@@ -1,0 +1,37 @@
+version: '3'
+
+services: 
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    ports:
+      - "4000:4000"
+    env_file: 
+      - ./server/.env
+    depends_on: 
+      - mongodb
+  
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    ports:
+      - "3000:3000"
+    env_file: 
+      - ./client/.env
+    depends_on:
+      - server
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_server
+    ports:
+      - "27017:27017"
+    volumes:
+      - mydata:/data/db 
+
+volumes: 
+  mydata:
