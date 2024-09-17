@@ -1,9 +1,8 @@
 import express from 'express'
-import { Index, VerifyRegister, Login, Register, ResetpassUrlGeneration, VerifyPassResetUrl, UpdatePassUrl, Logout, GoogleAuth , Getuserdata , UpdateExtras } from '../controllers/index.js'
+import { Index, VerifyRegister, Login, Register, ResetpassUrlGeneration, VerifyPassResetUrl, UpdatePassUrl, Logout, GoogleAuth , Getuserdata , UpdateExtras , Upload_dp } from '../controllers/index.js'
 import { ValidateUser } from '../middleware/ValidateUserMiddleware.js'
 import { Recaptcha } from '../middleware/RecaptchaMiddleware.js'
 import passport from 'passport'
-import { upload } from '../utils/Multerhelper.js'
 
 
 export const Router = express.Router()
@@ -24,6 +23,4 @@ Router.get("/google/auth/callback", passport.authenticate('google', { failureRed
 
 Router.get('/api/getdata' , ValidateUser , Getuserdata )
 Router.post('/api/updatextras' , ValidateUser , UpdateExtras)
-Router.post('/api/profiledp' , ValidateUser ,  upload.single('dp') , () => {
-
-})
+Router.post('/api/profiledp' , ValidateUser ,  Upload_dp)

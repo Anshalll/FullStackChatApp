@@ -10,7 +10,10 @@ import { ResetpassModel } from '../models/ResetpassModel.js'
 import { verifyPassUri } from '../utils/VerifyresetPassuri.js'
 import { ValidatePassword } from '../utils/Passwordvalidator.js'
 import { UserExtraModel } from '../models/Models.js'
-
+import path from 'path'
+import { GenerateOtp } from '../utils/GenerateVals.js'
+import fs from 'fs'
+import { Fileupload } from '../utils/FIleuploads.js'
 
 export const Index = async (req, res) => {
 
@@ -51,6 +54,7 @@ export const VerifyRegister = async (req, res) => {
 export const Register = async (req, res) => {
 
 
+
     const { username, name, email, password, value } = req.body
 
 
@@ -61,6 +65,8 @@ export const Register = async (req, res) => {
 
         const hashed = await bcrypt.hash(password, 10)
         const user = await RegisterModel.create({ name: name, username: username.trim().toLowerCase(), email: email, password: hashed })
+        await UserExtraModel.create({ belongsto: user._id , dpimage: `${process.env.SERVER_URI}/defaults/default_user.jpg` , interests: [] , backgroundimage: `${process.env.SERVER_URI}/defaults/default_user.jpg`  , bio: "Add a bio"   })
+
         await setCookie(res, user.id)
         await otpModel.deleteMany({ email })
         res.status(200).json({ register: true })
@@ -253,7 +259,7 @@ export const Getuserdata = async (req, res) => {
         res.json({ data })
 
     } catch (error) {
-   
+
         res.clearCookie('validation_token', {
             httpOnly: true,
             secure: process.env.SITE_MODE === "production",
@@ -269,7 +275,7 @@ export const Getuserdata = async (req, res) => {
 
 export const UpdateExtras = async (req, res) => {
 
-
+    console.log(req.body)
     const { username, name, bio, interests, uid } = req.body
 
 
@@ -284,3 +290,20 @@ export const UpdateExtras = async (req, res) => {
 
     res.json({ msg: "This is anshal!" })
 }
+
+
+export const Upload_dp =  (req, res) => {
+
+    try {
+        const { dp } = req.files;
+        let size  = 5 * 1024 * 1024
+        Fileupload(size, dp , res, req ,  UserExtraModel , "dpimage")
+  
+
+    } catch (error) {
+        console.error('Unhandled error:', error);
+        res.status(400).json({ error: error.message || 'An error occurred. Please try again.' });
+    }
+
+
+};

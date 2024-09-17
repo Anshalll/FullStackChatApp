@@ -41,10 +41,32 @@ export const AccessData = createApi({
         return response.data || response.error;
       },
 
+    }),
+
+    Imageupload: builder.mutation({
+      query : ({ data , path , method }) => ({
+
+        url: path,
+        method: method,
+        credentials: 'include',
+
+        body: data,
+
+      }),
+
+      transformResponse: (response) => {
+       
+        return response;
+      },
+      transformErrorResponse: (response) => {
+    
+        return response.data || response.error;
+      },
+
     })
     
   }),
 });
 
-export const { useGetAccessDataQuery , useFormsMutation } = AccessData;
+export const { useGetAccessDataQuery , useFormsMutation , useImageuploadMutation } = AccessData;
 

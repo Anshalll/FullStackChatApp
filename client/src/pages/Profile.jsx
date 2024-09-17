@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import EditState from '../components/EditState'
-import { useFormsMutation } from '../redux/Apis/Apis'
+import { useImageuploadMutation, useFormsMutation } from '../redux/Apis/Apis'
 import Updateuserbg from '../components/Updateuserbg'
 import Updateuserdp from '../components/Updateuserdp'
+import LoadingSpinner from '../assets//spinn_load.gif'
 
 export default function Profile() {
 
-    const [UpdateProfile, { isLoading: isUpdating }] = useFormsMutation()
+    const [UpdateProfile, { isLoading: isUpdating  }] = useFormsMutation()
+    const [UpdateImage , {isLoading: isImgLoading , isError: isuploaderror , isSuccess: isImgUploadsuc , error: uploaderror }] = useImageuploadMutation()
+
     const [Interests, setInterests] = useState([]);
     const [Admin, setAdmin] = useState(false)
     const { userdata, loading } = useSelector((state) => state.userdataslice)
@@ -24,8 +27,11 @@ export default function Profile() {
     const [TotalFollowing, setTotalFollowing] = useState(0)
     const [TotalGroups, setTotalGroups] = useState(0)
     const [TotalPosts, setTotalposts] = useState(0)
-    const [DP, setDP] = useState("https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_640.png")
-    const [BG, setBG] = useState("https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_640.png")
+
+    const [DP, setDP] = useState(null)
+    const [BG, setBG] = useState(null)
+    const [DP_preview, setDP_preview] = useState(null)
+    const [BG_preview, setBG_preview] = useState(null)
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -42,8 +48,11 @@ export default function Profile() {
 
                 setName(data[0].name)
                 setUsername(data[0].username)
-                setBio(data[1]?.bio || "Add a bio")
-                setInterests(data[1]?.interests || [])
+                setBio(data[1]?.bio)
+                setInterests(data[1]?.interests)
+
+                setBG_preview(data[1]?.backgroundimage)
+                setDP_preview(data[1]?.dpimage)
 
                 setTotalFollowers(data[1]?.followers.length)
                 setTotalFollowing(data[1]?.following.length)
@@ -100,11 +109,40 @@ export default function Profile() {
 
         Formdata.append("uid", id);
         Formdata.append('interests', Interests)
+
+
         const main_data = Object.fromEntries(Formdata)
 
 
         await UpdateProfile({ path: "/api/updatextras", data: main_data, method: "POST" })
+
+        
+        if (DP) {
+
+            if (isImgLoading) {
+                setDP_preview(LoadingSpinner)
+            }
+
+           const formdata = new FormData()
+           formdata.append("dp" , DP)
+           const {data: imgdata , error} = await UpdateImage({ data : formdata , path: "/api/profiledp" , method: "POST"})
+
+           
+            if (error) {
+                setImgError(error.error)
+            }
+            else{
+                setDP_preview(imgdata.filepath)
+            }
+           
+         
+        }
+        if(BG){
+            Formdata.append("bg" , BG)
+        }
+
         setEditMode(false)
+  
         navigate(`/profile?user=${Username}`)
 
     }
@@ -127,14 +165,14 @@ export default function Profile() {
         <>
             {loading || isUpdating ? "Loading..." : (
                 <form onSubmit={HandleProfileUpdate} className='w-full text-[13px] gap-[20px] items-center flex p-[20px] flex-col h-[100vh] overflow-y-auto'>
-                    {Editmode ? <Updateuserbg setBG={setBG} BG={BG} setImgError={setImgError} /> : <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg'>
+                    {Editmode ? <Updateuserbg setBG={setBG} BG={BG} setImgError={setImgError} setBG_preview={setBG_preview} /> : <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg'>
                         <img src={BG} alt="" className='w-full h-full object-cover object-center rounded-lg' />
 
                     </div>}
                     {ImgError && <p className='text-white w-[1500px] bg-[crimson] p-[7px] rounded-lg'>{ImgError}</p>}
                     <div className='flex gap-[40px] w-[1500px] items-center h-[300px]'>
-                        {Editmode ? <Updateuserdp setDP={setDP} DP={DP} setImgError={setImgError} /> : <div className='w-[250px] flex h-[250px] bg-gray-300 rounded-full'>
-                            <img src={DP} className='w-full h-full object-ceover object-center rounded-full' alt="" />
+                        {Editmode ? <Updateuserdp setDP={setDP}  setImgError={setImgError}  setDP_preview={setDP_preview} DP_preview={DP_preview}/> : <div className='w-[250px] flex h-[250px] bg-gray-300 rounded-full'>
+                            <img src={DP_preview} className='w-full h-full object-cover object-center rounded-full' alt="" />
                         </div>}
                         <div className='w-[calc(100%-250px)] flex justify-between h-[200px]'>
                             {Editmode ? (

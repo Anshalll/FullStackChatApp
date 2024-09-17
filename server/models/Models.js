@@ -7,8 +7,6 @@ const UserExtra = new mongoose.Schema({
     backgroundimage: String,
     dpimage: String,
     bio: String,
-    followers : String,
-    following: String,
     interests: Array,
     Groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
     posts:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'posts' }],

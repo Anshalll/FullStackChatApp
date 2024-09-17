@@ -10,12 +10,21 @@ import passport from 'passport'
 import { GoogleAuth } from './auth/GoogleAuth.js'
 import session from 'express-session'
 import cookieParser from 'cookie-parser'
+import fileUpload from 'express-fileupload'
+import path from 'path'
+
 
 dotenv.config({ path: '.env' })
 
 
 const app = express()
 app.use(cookieParser())
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }))
+app.use(express.static(path.join(path.resolve(), 'public')));
+
+app.use(fileUpload());
+
 app.use(cors({
     origin: process.env.ORIGIN,
     credentials: true
@@ -38,7 +47,7 @@ setInterval(() => {
 
 } , 1000)
 
-app.use(bodyParser.json());
+
 app.use(passport.initialize())
 app.use(passport.session())
 GoogleAuth()

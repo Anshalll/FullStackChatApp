@@ -2,6 +2,8 @@ import passport from 'passport'
 import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth'
 import { GenerateUsername } from '../utils/GenerateVals.js'
 import { RegisterModel } from '../models/Models.js'
+import { UserExtraModel } from '../models/Models.js'
+
 export const GoogleAuth = () => {
 
 
@@ -20,6 +22,8 @@ export const GoogleAuth = () => {
                 let user = await RegisterModel.findOne({ email })
                 if (!user) {
                   user =  await RegisterModel.create({ name , username , email })
+                  await UserExtraModel.create({ belongsto: user._id , dpimage: `${process.env.SERVER_URI}/defaults/default_user.jpg` , interests: [] , backgroundimage: `${process.env.SERVER_URI}/defaults/default_user.jpg`  , bio: "Add a bio"   })
+
                 }
                 return done(null, { id: user.id })
 
