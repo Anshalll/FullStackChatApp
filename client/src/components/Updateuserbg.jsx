@@ -1,37 +1,76 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import { useImageDeleteMutation } from '../redux/Apis/Apis';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import UpgradeOutlinedIcon from '@mui/icons-material/UpgradeOutlined';
 
+export default function Updateuserbg({ setBG, setBG_preview, BG_preview, setErrors }) {
 
-export default function Updateuserbg({ setBG, BG, setImgError }) {
+    const fileref = useRef(null)
+    const [imgdelete] = useImageDeleteMutation()
+
+    const ActivateFileinput = (e) => {
+        e.preventDefault()
+        fileref.current.click()
+    }
 
     const HandleprofileBG = (e) => {
+        try {
+            const file = e.target.files[0]
+            const file_exts = ["image/jpeg", "image/png"]
+            if (!file_exts.includes(file.type)) {
 
-        const file = e.target.files[0]
-        console.log(file.type)
-        if (file.type === "image/jpeg" || file.type === "image/png") {
-            if (file) {
-                const reader = new FileReader()
-
-                reader.onload = (e) => {
-                    setBG(e.target.result)
-                }
-                reader.readAsDataURL(file)
+                setErrors("only png and jpg file formats are allowed.")
+                return
             }
 
+            if (file.size > 10 * 1024 * 1024) {
+                setErrors("Background image size exceeded 10 mb")
+                return
+
+            }
+
+            const reader = new FileReader()
+
+            reader.onload = (e) => {
+                setBG_preview(e.target.result)
+                setBG(file)
+
+            }
+            reader.readAsDataURL(file)
+        } catch (error) {
+            setErrors("An error occured!")
+            return
         }
-        else {
-            setImgError("only png and jpg file formats are allowed.")
 
 
+
+    }
+
+
+    const HandleFileDelete = async (e) => {
+
+        e.preventDefault()
+        if (BG_preview !== "http://localhost:4000/defaults/default_user.jpg") {
+            setBG(null)
+            setBG_preview("http://localhost:4000/defaults/default_user.jpg")
+
+        }
+        const results = await imgdelete({ path: "/api/deletebg", method: "DELETE" })
+        if (results.error) {
+            setErrors("An error occured")
         }
 
 
     }
 
+
     return (
-        <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg relative'>
-            <img src={BG} alt="" className='w-full h-full object-cover object-center rounded-lg' />
-            <div className='flex items-center justify-center hover:bg-black hover:opacity-[0.5] absolute w-full h-full rounded-lg'>
-                <input type="file" onChange={HandleprofileBG} className='opacity-0 w-full h-full rounded-full' accept="image/jpeg, image/png" />
+        <div className='bgdiv w-[1500px] flex h-[300px] bg-gray-300 rounded-lg relative'>
+            <img src={BG_preview} alt="" className='w-full h-full object-cover object-center rounded-lg' />
+            <div className='updatebg hidden justify-center w-full h-full items-center gap-[20px] absolute rounded-lg'>
+                <button onClick={HandleFileDelete} className='bg-white  hover:bg-[crimson] hover:text-white border-2 border-black w-[40px] h-[40px] rounded-full'><DeleteOutlineOutlinedIcon /></button>
+                <button onClick={ActivateFileinput} className='bg-white border-2 hover:bg-[crimson] hover:text-white border-black w-[40px] h-[40px] rounded-full'><UpgradeOutlinedIcon /></button>
+                <input type="file" ref={fileref} onChange={HandleprofileBG} className='hidden' accept="image/jpeg, image/png" />
             </div>
         </div>
     )

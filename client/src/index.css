@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.updatedp:hover .updatebtns{
+    display: flex;
+    background-color: black;
+  
+}
+
+.bgdiv:hover .updatebg{
+    display: flex;
+    background-color: black;
+}

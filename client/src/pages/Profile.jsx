@@ -10,7 +10,7 @@ import LoadingSpinner from '../assets//spinn_load.gif'
 export default function Profile() {
 
     const [UpdateProfile, { isLoading: isUpdating  }] = useFormsMutation()
-    const [UpdateImage , {isLoading: isImgLoading , isError: isuploaderror , isSuccess: isImgUploadsuc , error: uploaderror }] = useImageuploadMutation()
+    const [UpdateImage , {isLoading: isImgLoading  }] = useImageuploadMutation()
 
     const [Interests, setInterests] = useState([]);
     const [Admin, setAdmin] = useState(false)
@@ -18,7 +18,7 @@ export default function Profile() {
     const [Editmode, setEditMode] = useState(false)
     const [InterestsError, setInterestsError] = useState(null);
 
-    const [ImgError, setImgError] = useState(null)
+   const [Errors, setErrors] = useState(null)
 
     const [Name, setName] = useState("");
     const [Username, setUsername] = useState("");
@@ -69,14 +69,14 @@ export default function Profile() {
     }, [userdata, loading, main_profile, navigate])
 
     useEffect(() => {
-        if (InterestsError || ImgError) {
+        if (InterestsError || Errors) {
             const timer = setTimeout(() => {
                 setInterestsError(null);
-                setImgError(null)
+                setErrors(null)
             }, 3000);
             return () => clearTimeout(timer);
         }
-    }, [InterestsError , setInterestsError , ImgError , setImgError]);
+    }, [InterestsError , setInterestsError , Errors , setErrors]);
 
     const HandleEdit = (e) => {
         e.preventDefault()
@@ -100,7 +100,8 @@ export default function Profile() {
     };
 
     const HandleProfileUpdate = async (e) => {
-
+      
+        
         e.preventDefault()
 
         const Formdata = new FormData(e.target)
@@ -114,11 +115,14 @@ export default function Profile() {
         const main_data = Object.fromEntries(Formdata)
 
 
-        await UpdateProfile({ path: "/api/updatextras", data: main_data, method: "POST" })
+        const profile_update = await UpdateProfile({ path: "/api/updatextras", data: main_data, method: "POST" })
 
-        
+        if (profile_update.error?.error) {
+            setErrors(profile_update.error?.error)
+          
+        }
         if (DP) {
-
+        
             if (isImgLoading) {
                 setDP_preview(LoadingSpinner)
             }
@@ -129,21 +133,47 @@ export default function Profile() {
 
            
             if (error) {
-                setImgError(error.error)
+               
+                setErrors(error.error)
             }
             else{
                 setDP_preview(imgdata.filepath)
+                setDP(null)
+
             }
-           
          
         }
         if(BG){
-            Formdata.append("bg" , BG)
+           
+            if (isImgLoading) {
+                setBG_preview(LoadingSpinner)
+            }
+
+           const formdata = new FormData()
+           formdata.append("bg" , BG)
+           const {data: imgdata , error} = await UpdateImage({ data : formdata , path: "/api/profilebg" , method: "POST"})
+
+           
+            if (error) {
+
+                setErrors(error.error)
+
+
+            }
+            else{
+                setBG_preview(imgdata.filepath)
+                setBG(null)
+            }
+            
+        }
+        if (!Errors) {
+            setEditMode(false)
+       
+            navigate(`/profile?user=${Username}`)
+            window.location.reload()
         }
 
-        setEditMode(false)
-  
-        navigate(`/profile?user=${Username}`)
+ 
 
     }
     const HandleInterests = (e) => {
@@ -163,15 +193,15 @@ export default function Profile() {
 
     return (
         <>
-            {loading || isUpdating ? "Loading..." : (
+            {loading || isUpdating  || isImgLoading ? "Loading..." : (
                 <form onSubmit={HandleProfileUpdate} className='w-full text-[13px] gap-[20px] items-center flex p-[20px] flex-col h-[100vh] overflow-y-auto'>
-                    {Editmode ? <Updateuserbg setBG={setBG} BG={BG} setImgError={setImgError} setBG_preview={setBG_preview} /> : <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg'>
-                        <img src={BG} alt="" className='w-full h-full object-cover object-center rounded-lg' />
+                    {Editmode ? <Updateuserbg setBG={setBG} BG_preview={BG_preview}  setErrors={setErrors} setBG_preview={setBG_preview} /> : <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg'>
+                        <img src={BG_preview} alt="" className='w-full h-full object-cover object-center rounded-lg' />
 
                     </div>}
-                    {ImgError && <p className='text-white w-[1500px] bg-[crimson] p-[7px] rounded-lg'>{ImgError}</p>}
+                    {Errors && <p className='text-white w-[1500px] bg-[crimson] p-[7px] rounded-lg'>{Errors}</p>}
                     <div className='flex gap-[40px] w-[1500px] items-center h-[300px]'>
-                        {Editmode ? <Updateuserdp setDP={setDP}  setImgError={setImgError}  setDP_preview={setDP_preview} DP_preview={DP_preview}/> : <div className='w-[250px] flex h-[250px] bg-gray-300 rounded-full'>
+                        {Editmode ? <Updateuserdp setDP={setDP}  setErrors={setErrors}  setDP_preview={setDP_preview} DP_preview={DP_preview}/> : <div className='w-[250px] flex h-[250px] bg-gray-300 rounded-full'>
                             <img src={DP_preview} className='w-full h-full object-cover object-center rounded-full' alt="" />
                         </div>}
                         <div className='w-[calc(100%-250px)] flex justify-between h-[200px]'>

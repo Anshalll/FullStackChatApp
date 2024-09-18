@@ -10,10 +10,9 @@ import { ResetpassModel } from '../models/ResetpassModel.js'
 import { verifyPassUri } from '../utils/VerifyresetPassuri.js'
 import { ValidatePassword } from '../utils/Passwordvalidator.js'
 import { UserExtraModel } from '../models/Models.js'
-import path from 'path'
-import { GenerateOtp } from '../utils/GenerateVals.js'
 import fs from 'fs'
 import { Fileupload } from '../utils/FIleuploads.js'
+import path from 'path'
 
 export const Index = async (req, res) => {
 
@@ -275,8 +274,9 @@ export const Getuserdata = async (req, res) => {
 
 export const UpdateExtras = async (req, res) => {
 
-    console.log(req.body)
-    const { username, name, bio, interests, uid } = req.body
+    
+    try {
+        const { username, name, bio, interests, uid } = req.body
 
 
     let user_interests = interests.split(",")
@@ -288,7 +288,12 @@ export const UpdateExtras = async (req, res) => {
 
 
 
-    res.json({ msg: "This is anshal!" })
+        return res.status(200).json({ message: "Profileupdated"  })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "An error occured!" })
+    }
+    
 }
 
 
@@ -307,3 +312,84 @@ export const Upload_dp =  (req, res) => {
 
 
 };
+
+
+export const Upload_bg = (req, res) => {
+    
+    try {
+        const { bg } = req.files;
+        let size  = 10 * 1024 * 1024
+        Fileupload(size, bg , res, req ,  UserExtraModel , "backgroundimage")
+  
+
+    } catch (error) {
+     
+        res.status(400).json({ error: error.message || 'An error occurred. Please try again.' });
+    }
+}
+
+export const Delete_bg = async (req, res) => {
+    const {id} = req
+ 
+    
+    try {
+
+        const Find_user = await UserExtraModel.findOne({ belongsto: id })
+
+        if (Find_user.backgroundimage !== `${process.env.SERVER_URI}/defaults/default_user.jpg`) {
+            const filepath = Find_user.backgroundimage.split('/')
+            const file_rm = path.join(path.resolve() , `/public/uploads/${filepath[filepath.length - 1]}`)
+            await new Promise((resolve, reject) => {
+                fs.unlink(file_rm, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            });
+            Find_user.backgroundimage = `${process.env.SERVER_URI}/defaults/default_user.jpg`
+            await Find_user.save()
+            return res.status(200).json({ message: "Background image updated!"})
+
+        }
+       
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "An error occured!" })
+        
+    }
+
+}
+
+
+export const Delete_dp = async (req, res) => {
+    const {id} = req
+ 
+    
+    try {
+
+        const Find_user = await UserExtraModel.findOne({ belongsto: id })
+
+        if (Find_user.dpimage !== `${process.env.SERVER_URI}/defaults/default_user.jpg`) {
+            const filepath = Find_user.dpimage.split('/')
+            const file_rm = path.join(path.resolve() , `/public/uploads/${filepath[filepath.length - 1]}`)
+            await new Promise((resolve, reject) => {
+                fs.unlink(file_rm, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            });
+            Find_user.dpimage = `${process.env.SERVER_URI}/defaults/default_user.jpg`
+            await Find_user.save()
+            return res.status(200).json({ message: "Dp updated!"})
+
+        }
+       
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "An error occured!" })
+        
+    }
+}

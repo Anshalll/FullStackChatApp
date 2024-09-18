@@ -11,7 +11,7 @@ export const Fileupload = (size , img , res , req , model , img_field) => {
     const file_mimetype = img.mimetype;
 
     if (img.size > size) {
-        return res.status(400).json({ error: "Image size exceeded 5 mb" });
+        return res.status(400).json({ error: "Profile image size exceeded 5 mb" });
 
     }
     if (!arr_extension.includes(file_mimetype)) {
