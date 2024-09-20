@@ -393,3 +393,33 @@ export const Delete_dp = async (req, res) => {
         
     }
 }
+
+
+export const Searchprofile = async (req, res) => {
+
+    const {data} = req.body
+    const users = await RegisterModel.find({ username: { $regex: data, $options: 'i' } }).select('-password')
+
+    const userids = users.map(user => user._id)
+    
+    const userextras = await UserExtraModel.find({ belongsto: {$in : userids }}).populate('belongsto')
+    
+    console.log(userextras);
+    
+    
+    res.status(200).json({ results: userextras })
+
+ 
+    
+
+}
+
+export const Getauser = async (req, res) => {
+    const {user} = req.body
+   
+    const user_data = await RegisterModel.findOne({ username: user}).select('-password')
+    const extra_data = await UserExtraModel.findOne({ belongsto : user_data._id }).populate('belongsto')
+   
+    
+    res.json({ data: extra_data })
+}

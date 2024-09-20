@@ -6,11 +6,18 @@ import { useImageuploadMutation, useFormsMutation } from '../redux/Apis/Apis'
 import Updateuserbg from '../components/Updateuserbg'
 import Updateuserdp from '../components/Updateuserdp'
 import LoadingSpinner from '../assets//spinn_load.gif'
+import AppLayout from '../layout/AppLayout'
 
-export default function Profile() {
+import NotFound from "../components/NotFound";
+import { useGetuserMutation } from "../redux/Apis/Apis";
+
+
+function Profile() {
 
     const [UpdateProfile, { isLoading: isUpdating  }] = useFormsMutation()
     const [UpdateImage , {isLoading: isImgLoading  }] = useImageuploadMutation()
+
+    const [Getauser, { isLoading: isGettinguser }] = useGetuserMutation();
 
     const [Interests, setInterests] = useState([]);
     const [Admin, setAdmin] = useState(false)
@@ -46,23 +53,62 @@ export default function Profile() {
 
             if (data) {
 
-                setName(data[0].name)
-                setUsername(data[0].username)
-                setBio(data[1]?.bio)
-                setInterests(data[1]?.interests)
-
-                setBG_preview(data[1]?.backgroundimage)
-                setDP_preview(data[1]?.dpimage)
-
-                setTotalFollowers(data[1]?.followers.length)
-                setTotalFollowing(data[1]?.following.length)
-                setTotalGroups(data[1]?.Groups.length)
-                setTotalposts(data[1]?.posts.length)
 
                 if (!main_profile) {
                     navigate(`/profile?user=${data[0].username}`)
-                } else if (main_profile === data[0].username) {
+                    
+                } 
+                if (main_profile === data[0].username) {
                     setAdmin(true)
+                    
+                    setName(data[0].name)
+                    setUsername(data[0].username)
+                    setBio(data[1]?.bio)
+                    setInterests(data[1]?.interests)
+
+                    setBG_preview(data[1]?.backgroundimage)
+                    setDP_preview(data[1]?.dpimage)
+
+                    setTotalFollowers(data[1]?.followers.length)
+                    setTotalFollowing(data[1]?.following.length)
+                    setTotalGroups(data[1]?.Groups.length)
+                    setTotalposts(data[1]?.posts.length)
+                }
+                else{
+
+                    const user = {user: main_profile}
+                    const fetchUser = async () => {
+                        try {
+                          const resp = await Getauser({ method: "POST", path: "/api/getauser", data : user });
+                        if (!isGettinguser) {
+                            const main = resp.data.data
+                            if (main) {
+                                setAdmin(false)
+                    
+                                setName(main.belongsto.name)
+                                setUsername(main.belongsto.username)
+                                setBio(main.bio)
+                                setInterests(main.Interests)
+            
+                                setBG_preview(main.backgroundimage)
+                                setDP_preview(main.dpimage)
+            
+                                setTotalFollowers(main.followers.length)
+                                setTotalFollowing(main.following.length)
+                                setTotalGroups(main.Groups.length)
+                                setTotalposts(main.posts.length)
+                              }
+                        }
+                       
+                        
+                        } catch (err) {
+                          console.error("Failed to fetch user:", err);
+                        }
+                    };
+
+                    fetchUser()
+
+                    
                 }
             }
         }
@@ -260,3 +306,6 @@ export default function Profile() {
         </>
     )
 }
+
+
+export default AppLayout()(Profile)
