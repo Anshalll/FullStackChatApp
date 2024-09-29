@@ -8,7 +8,7 @@ const UserExtra = new mongoose.Schema({
     dpimage: String,
     bio: String,
     interests: Array,
-    Groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
+    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
     posts:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'posts' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }]

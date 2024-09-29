@@ -109,31 +109,11 @@ export const AccessData = createApi({
     }),
 
     
-    Getuser: builder.mutation({
-      query: ({ data, path , method }) => ({
-          url: path,
     
-          credentials: "include",
-          method: method,
-          headers: {
-            "Content-Type" : "application/json"
-          },
-          body: JSON.stringify(data)
-      }),
-  
-      transformResponse: (response) => {
-       
-        return response;
-      },
-      transformErrorResponse: (response) => {
-    
-        return response.data || response.error;
-      },
-    })
     
   }),
 
 });
 
-export const { useGetAccessDataQuery , useFormsMutation , useImageuploadMutation , useImageDeleteMutation , useSearchprofileMutation , useGetuserMutation} = AccessData;
+export const { useGetAccessDataQuery , useFormsMutation , useImageuploadMutation , useImageDeleteMutation , useSearchprofileMutation } = AccessData;
 

@@ -21,8 +21,10 @@ export const GoogleAuth = () => {
                 const username = await GenerateUsername(given_name)
                 let user = await RegisterModel.findOne({ email })
                 if (!user) {
+                    console.log("user created")
                   user =  await RegisterModel.create({ name , username , email })
-                  await UserExtraModel.create({ belongsto: user._id , dpimage: `${process.env.SERVER_URI}/defaults/default_user.jpg` , interests: [] , backgroundimage: `${process.env.SERVER_URI}/defaults/default_user.jpg`  , bio: "Add a bio"   })
+                  const main = await UserExtraModel.create({ belongsto: user._id , dpimage: `${process.env.SERVER_URI}/defaults/default_user.jpg` , interests: [] , backgroundimage: `${process.env.SERVER_URI}/defaults/default_user.jpg`  , bio: "Add a bio"   })
+                 console.log(main)
 
                 }
                 return done(null, { id: user.id })

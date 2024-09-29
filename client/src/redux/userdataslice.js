@@ -14,8 +14,11 @@ export const fetchUser = createAsyncThunk(
   );
 
 let initialState = {
+
     userdata: {},
+    Admin: false,
     loading: true
+    
 }
 
 const Userdata = createSlice({
