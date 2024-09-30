@@ -6,7 +6,7 @@ import { useImageuploadMutation, useFormsMutation } from '../redux/Apis/Apis'
 import Updateuserbg from '../components/Updateuserbg'
 import Updateuserdp from '../components/Updateuserdp'
 import LoadingSpinner from '../assets//spinn_load.gif'
-import AppLayout from '../layout/AppLayout'
+import {Profilelayout} from '../layout/AppLayout'
 import { useSearchprofileMutation } from '../redux/Apis/Apis'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import Followprofile from '../components/Followprofile'
@@ -14,13 +14,14 @@ import { Helmet } from 'react-helmet-async'
 import NotFound from '../components/NotFound'
 import { SearchedData } from '../utils/SetSearchedData'
 import Profileoptions from '../components/Profileoptions'
+import Userdatalist from '../components/Userdatalist'
 
 function Profile() {
 
 
     const [Pagetitle, setPagetitle] = useState(null)
     const [Notfounduser, setNotfounduser] = useState(false)
-    const [Following_searched , setFollowing_searched] = useState(false)
+    const [Following_searched, setFollowing_searched] = useState(false)
     const [UpdateProfile, { isLoading: isUpdating }] = useFormsMutation()
     const [UpdateImage, { isLoading: isImgLoading }] = useImageuploadMutation()
     const [SearchProfile, { isSuccess: isSearchedProfile, isError: isSearchedProfileerror, error: SearchError }] = useSearchprofileMutation()
@@ -91,8 +92,8 @@ function Profile() {
                 } else {
 
                     setAdmin(false);
-                    SearchedData(SearchProfile, searched_profile, Setuserdata, setNotfounduser , username , setFollowing_searched)
-                    
+                    SearchedData(SearchProfile, searched_profile, Setuserdata, setNotfounduser, username, setFollowing_searched)
+
 
 
                 }
@@ -234,7 +235,7 @@ function Profile() {
     return (
         <>
             {Notfounduser ? <NotFound /> : (loading || isUpdating || isImgLoading ? "Loading..." : (
-                <form onSubmit={HandleProfileUpdate} className='w-full text-[13px] gap-[20px] items-center flex p-[20px] flex-col h-[100vh] overflow-y-auto'>
+                <form onSubmit={HandleProfileUpdate} className='w-full text-[13px] gap-[20px] items-center flex p-[20px] flex-col h-[calc(100vh-80px)] overflow-y-auto'>
                     {Editmode ? <Updateuserbg setBG={setBG} BG_preview={BG_preview} setErrors={setErrors} setBG_preview={setBG_preview} /> : <div className='w-[1500px] flex h-[300px] bg-gray-300 rounded-lg'>
                         <img src={BG_preview} alt="" className='w-full h-full object-cover object-center rounded-lg' />
 
@@ -267,20 +268,9 @@ function Profile() {
                                 </div>
                             )}
                             <div className='flex flex-col gap-[20px]  p-[20px] rounded-lg'>
-                                <div className='flex gap-[30px] text-black'>
-                                    <p className='font-bold bg-gray-200 px-[20px] py-[7px] rounded-lg'>
-                                        Groups <span className='font-normal'>{TotalGroups}</span>
-                                    </p>
-                                    <p className='font-bold bg-gray-200 px-[20px] py-[7px] rounded-lg'>
-                                        Posts: <span className='font-normal'>{TotalPosts}</span>
-                                    </p>
-                                    <p className='font-bold bg-gray-200 px-[20px] py-[7px] rounded-lg'>
-                                        Followers <span className='font-normal'>{TotalFollowers}</span>
-                                    </p>
-                                    <p className='font-bold bg-gray-200 px-[20px] py-[7px] rounded-lg'>
-                                        Following: <span className='font-normal'>{TotalFollowing}</span>
-                                    </p>
-                                </div>
+                                
+                                <Userdatalist TotalGroups={TotalGroups} TotalFollowers={TotalFollowers} TotalFollowing={TotalFollowing} TotalPosts={TotalPosts} />
+
                                 {Admin ?
                                     (Editmode ? <button type='submit' className='bg-green-500 text-white p-[7px] rounded-lg'>
                                         Save
@@ -290,11 +280,11 @@ function Profile() {
                                     : (
                                         <>
 
-                                        <Followprofile Following_searched={Following_searched} searcheduser={searched_profile} loggeduser={userdata?.data[0].username} setTotalFollowers={setTotalFollowers} setFollowing_searched={setFollowing_searched} />
+                                            <Followprofile Following_searched={Following_searched} searcheduser={searched_profile} loggeduser={userdata?.data[0].username} setTotalFollowers={setTotalFollowers} setFollowing_searched={setFollowing_searched} />
                                             <div className='flex items-center w-full gap-[20px]'>
 
                                                 <button onClick={(e) => e.preventDefault()} className='rounded-full justify-center flex gap-[10px] items-center p-[7px] border-2 border-black font-bold w-[95%]'>Message <EmailOutlinedIcon /> </button>
-                                                <Profileoptions/>
+                                                <Profileoptions />
                                             </div>
                                         </>
 
@@ -309,4 +299,4 @@ function Profile() {
 }
 
 
-export default AppLayout()(Profile)
+export default Profilelayout()(Profile)

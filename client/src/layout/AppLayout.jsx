@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "../components/Header";
-
+import Data_dialog from "../components/Data_dialog";
 
 const AppLayout = () => (Wrappedcomponent) => {
 
@@ -16,4 +16,21 @@ const AppLayout = () => (Wrappedcomponent) => {
 
 }
 
-export default AppLayout
+export const Applayout =  AppLayout
+
+
+const ProfileLayout = () => (Wrappedcomponent) => {
+
+    return (props) => {
+        return (
+            <>
+            <Header/>
+            <Wrappedcomponent {...props} />
+            </>
+           
+        )
+    }   
+
+}
+
+export const Profilelayout = ProfileLayout
