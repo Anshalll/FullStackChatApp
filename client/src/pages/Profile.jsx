@@ -9,7 +9,7 @@ import LoadingSpinner from '../assets//spinn_load.gif'
 import AppLayout from '../layout/AppLayout'
 import { useSearchprofileMutation } from '../redux/Apis/Apis'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-
+import Followprofile from '../components/Followprofile'
 import { Helmet } from 'react-helmet-async'
 import NotFound from '../components/NotFound'
 import { SearchedData } from '../utils/SetSearchedData'
@@ -20,7 +20,7 @@ function Profile() {
 
     const [Pagetitle, setPagetitle] = useState(null)
     const [Notfounduser, setNotfounduser] = useState(false)
-
+    const [Following_searched , setFollowing_searched] = useState(false)
     const [UpdateProfile, { isLoading: isUpdating }] = useFormsMutation()
     const [UpdateImage, { isLoading: isImgLoading }] = useImageuploadMutation()
     const [SearchProfile, { isSuccess: isSearchedProfile, isError: isSearchedProfileerror, error: SearchError }] = useSearchprofileMutation()
@@ -89,9 +89,10 @@ function Profile() {
                     Setuserdata(username, name, interests, bio, backgroundimage, dpimage, followers, following, groups, posts);
 
                 } else {
-                    setAdmin(false);
-                    SearchedData(SearchProfile, searched_profile, Setuserdata, setNotfounduser)
 
+                    setAdmin(false);
+                    SearchedData(SearchProfile, searched_profile, Setuserdata, setNotfounduser , username , setFollowing_searched)
+                    
 
 
                 }
@@ -289,10 +290,7 @@ function Profile() {
                                     : (
                                         <>
 
-                                            <button className='bg-green-500 text-white p-[7px] rounded-lg'>
-                                                Follow
-
-                                            </button>
+                                        <Followprofile Following_searched={Following_searched} searcheduser={searched_profile} loggeduser={userdata?.data[0].username} setTotalFollowers={setTotalFollowers} setFollowing_searched={setFollowing_searched} />
                                             <div className='flex items-center w-full gap-[20px]'>
 
                                                 <button onClick={(e) => e.preventDefault()} className='rounded-full justify-center flex gap-[10px] items-center p-[7px] border-2 border-black font-bold w-[95%]'>Message <EmailOutlinedIcon /> </button>

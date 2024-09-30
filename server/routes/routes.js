@@ -1,5 +1,5 @@
 import express from 'express'
-import { Index, VerifyRegister, Login, Register, ResetpassUrlGeneration, VerifyPassResetUrl, UpdatePassUrl, Logout, GoogleAuth , Getuserdata , UpdateExtras , Upload_dp , Upload_bg ,Delete_dp , Delete_bg , Searchprofile, Getauser} from '../controllers/index.js'
+import { Index, VerifyRegister, Login, Register, ResetpassUrlGeneration, VerifyPassResetUrl, UpdatePassUrl, Logout, GoogleAuth , Getuserdata , UpdateExtras , Upload_dp , Upload_bg ,Delete_dp , Delete_bg , Searchprofile, Getauser , Followuser , unFollowuser} from '../controllers/index.js'
 
 import { ValidateUser } from '../middleware/ValidateUserMiddleware.js'
 import { Recaptcha } from '../middleware/RecaptchaMiddleware.js'
@@ -31,3 +31,5 @@ Router.delete('/api/deletedp' , ValidateUser , Delete_dp)
 Router.delete('/api/deletebg' , ValidateUser , Delete_bg)
 Router.post('/api/searchprofile' , ValidateUser , Searchprofile)
 Router.post('/api/getauser' , ValidateUser , Getauser)
+Router.post('/api/followuser' , ValidateUser , Followuser)
+Router.post('/api/unfollowuser' , ValidateUser , unFollowuser)

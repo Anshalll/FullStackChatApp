@@ -234,7 +234,7 @@ export const UpdateExtras = async (req, res) => {
 
         return res.status(200).json({ message: "Profileupdated" });
     } catch (error) {
-        console.log(error);
+      
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -245,7 +245,7 @@ export const Upload_dp = (req, res) => {
         let size = 5 * 1024 * 1024;
         Fileupload(size, dp, res, req, UserExtraModel, "dpimage");
     } catch (error) {
-        console.error("Unhandled error:", error);
+        
         res
             .status(400)
             .json({ error: error.message || "An error occurred. Please try again." });
@@ -292,7 +292,7 @@ export const Delete_bg = async (req, res) => {
             return res.status(200).json({ message: "Background image updated!" });
         }
     } catch (error) {
-        console.log(error);
+  
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -325,7 +325,7 @@ export const Delete_dp = async (req, res) => {
             return res.status(200).json({ message: "Dp updated!" });
         }
     } catch (error) {
-        console.log(error);
+   
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -342,15 +342,17 @@ export const Searchprofile = async (req, res) => {
         belongsto: { $in: userids },
     }).populate("belongsto");
 
-    console.log(userextras);
+
 
     res.status(200).json({ results: userextras });
 };
 
 export const Getauser = async (req, res) => {
     try {
-        const { user } = req.body;
-      
+        const { user, loggeduser } = req.body;
+
+        const logged_user = await RegisterModel.findOne({ username: loggeduser })
+
         const user_data = await RegisterModel.findOne({ username: user }).select(
             "-password"
         );
@@ -358,10 +360,140 @@ export const Getauser = async (req, res) => {
         const extra_data = await UserExtraModel.findOne({
             belongsto: user_data._id,
         }).populate("belongsto");
-        res.status(200).json({ data: extra_data });
+
+        const isFollowing = extra_data.followers.includes(logged_user._id)
+
+       
+
+        res.status(200).json({ data: extra_data , isFollowing });
     } catch (error) { 
         res.status(400).json({ 
             error: "No user found"
           })
+    }
+};
+
+
+export const Followuser = async (req, res) => {
+    const { loggeduser, searcheduser } = req.body;
+
+ 
+    if (!loggeduser || !searcheduser) {
+        return res.status(400).json({ msg: "Missing loggeduser or searcheduser" });
+    }
+
+    try {
+      
+        const logged_uid = await RegisterModel.findOne({ username: loggeduser });
+        const searched_uid = await RegisterModel.findOne({ username: searcheduser });
+
+    
+        if (!logged_uid || !searched_uid) {
+            return res.status(404).json({ msg: "An error occured!" });
+        }
+
+     
+        const checkExistence_logged = await UserExtraModel.findOne({
+            belongsto: logged_uid._id,
+            following: searched_uid._id
+        });
+
+       
+        const checkExistence_searched = await UserExtraModel.findOne({
+            belongsto: searched_uid._id,
+            followers: logged_uid._id
+        });
+
+   
+        if (!checkExistence_logged && !checkExistence_searched) {
+            
+            // Update logged user following list
+
+            const following_logged = await UserExtraModel.findOneAndUpdate(
+                { belongsto: logged_uid._id },
+                { $push: { following: searched_uid._id } },
+                
+            );
+
+            // Update searched user followers list
+            const followers_searched = await UserExtraModel.findOneAndUpdate(
+                { belongsto: searched_uid._id },
+                { $push: { followers: logged_uid._id } },
+                {new: true}
+            );
+            let followerslength = followers_searched.followers.length
+            
+            return res.status(200).json({ success: true  , total_searched_user_followers : followerslength, following: true });
+        } else {
+            return res.status(400).json({ success: false });
+        }
+
+    } catch (error) {
+
+        return res.status(500).json({ error: "Server error" });
+    }
+};
+
+
+export const unFollowuser = async (req, res) => {
+    const { loggeduser, searcheduser } = req.body;
+
+ 
+    if (!loggeduser || !searcheduser) {
+        return res.status(400).json({ msg: "Missing loggeduser or searcheduser" });
+    }
+
+    try {
+      
+        const logged_uid = await RegisterModel.findOne({ username: loggeduser });
+        const searched_uid = await RegisterModel.findOne({ username: searcheduser });
+
+    
+        if (!logged_uid || !searched_uid) {
+            return res.status(404).json({ msg: "An error occured!" });
+        }
+
+     
+        const checkExistence_logged = await UserExtraModel.findOne({
+            belongsto: logged_uid._id,
+            following: searched_uid._id
+        });
+
+       
+        const checkExistence_searched = await UserExtraModel.findOne({
+            belongsto: searched_uid._id,
+            followers: logged_uid._id
+        });
+
+   
+        if (checkExistence_logged && checkExistence_searched) {
+            
+            // Update logged user following list
+
+           await UserExtraModel.findOneAndUpdate(
+                { belongsto: logged_uid._id },
+                { $pull: { following: searched_uid._id } },
+                
+            );
+
+            // Update searched user followers list
+           const search_user_follow = await UserExtraModel.findOneAndUpdate(
+                { belongsto: searched_uid._id },
+                { $pull: { followers: logged_uid._id } },
+                {new: true}
+              
+            );
+
+            let followerslength =  search_user_follow.followers.length
+
+            return res.status(200).json({ success: true  , total_searched_user_followers : followerslength, unfollowing: true });
+
+        } else {
+            return res.status(400).json({ success: false });
+        }
+
+    } catch (error) {
+        
+        return res.status(500).json({ error: "Server error" });
     }
 };
