@@ -234,7 +234,7 @@ export const UpdateExtras = async (req, res) => {
 
         return res.status(200).json({ message: "Profileupdated" });
     } catch (error) {
-      
+
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -245,7 +245,7 @@ export const Upload_dp = (req, res) => {
         let size = 5 * 1024 * 1024;
         Fileupload(size, dp, res, req, UserExtraModel, "dpimage");
     } catch (error) {
-        
+
         res
             .status(400)
             .json({ error: error.message || "An error occurred. Please try again." });
@@ -292,7 +292,7 @@ export const Delete_bg = async (req, res) => {
             return res.status(200).json({ message: "Background image updated!" });
         }
     } catch (error) {
-  
+
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -325,7 +325,7 @@ export const Delete_dp = async (req, res) => {
             return res.status(200).json({ message: "Dp updated!" });
         }
     } catch (error) {
-   
+
         return res.status(500).json({ error: "An error occured!" });
     }
 };
@@ -356,20 +356,20 @@ export const Getauser = async (req, res) => {
         const user_data = await RegisterModel.findOne({ username: user }).select(
             "-password"
         );
-     
+
         const extra_data = await UserExtraModel.findOne({
             belongsto: user_data._id,
         }).populate("belongsto");
 
         const isFollowing = extra_data.followers.includes(logged_user._id)
 
-       
 
-        res.status(200).json({ data: extra_data , isFollowing });
-    } catch (error) { 
-        res.status(400).json({ 
+
+        res.status(200).json({ data: extra_data, isFollowing });
+    } catch (error) {
+        res.status(400).json({
             error: "No user found"
-          })
+        })
     }
 };
 
@@ -377,53 +377,53 @@ export const Getauser = async (req, res) => {
 export const Followuser = async (req, res) => {
     const { loggeduser, searcheduser } = req.body;
 
- 
+
     if (!loggeduser || !searcheduser) {
         return res.status(400).json({ msg: "Missing loggeduser or searcheduser" });
     }
 
     try {
-      
+
         const logged_uid = await RegisterModel.findOne({ username: loggeduser });
         const searched_uid = await RegisterModel.findOne({ username: searcheduser });
 
-    
+
         if (!logged_uid || !searched_uid) {
             return res.status(404).json({ msg: "An error occured!" });
         }
 
-     
+
         const checkExistence_logged = await UserExtraModel.findOne({
             belongsto: logged_uid._id,
             following: searched_uid._id
         });
 
-       
+
         const checkExistence_searched = await UserExtraModel.findOne({
             belongsto: searched_uid._id,
             followers: logged_uid._id
         });
 
-   
+
         if (!checkExistence_logged && !checkExistence_searched) {
-            
+
             // Update logged user following list
 
             const following_logged = await UserExtraModel.findOneAndUpdate(
                 { belongsto: logged_uid._id },
                 { $push: { following: searched_uid._id } },
-                
+
             );
 
             // Update searched user followers list
             const followers_searched = await UserExtraModel.findOneAndUpdate(
                 { belongsto: searched_uid._id },
                 { $push: { followers: logged_uid._id } },
-                {new: true}
+                { new: true }
             );
             let followerslength = followers_searched.followers.length
-            
-            return res.status(200).json({ success: true  , total_searched_user_followers : followerslength, following: true });
+
+            return res.status(200).json({ success: true, total_searched_user_followers: followerslength, following: true });
         } else {
             return res.status(400).json({ success: false });
         }
@@ -438,62 +438,196 @@ export const Followuser = async (req, res) => {
 export const unFollowuser = async (req, res) => {
     const { loggeduser, searcheduser } = req.body;
 
- 
+
     if (!loggeduser || !searcheduser) {
         return res.status(400).json({ msg: "Missing loggeduser or searcheduser" });
     }
 
     try {
-      
+
         const logged_uid = await RegisterModel.findOne({ username: loggeduser });
         const searched_uid = await RegisterModel.findOne({ username: searcheduser });
 
-    
+
         if (!logged_uid || !searched_uid) {
             return res.status(404).json({ msg: "An error occured!" });
         }
 
-     
+
         const checkExistence_logged = await UserExtraModel.findOne({
             belongsto: logged_uid._id,
             following: searched_uid._id
         });
 
-       
+
         const checkExistence_searched = await UserExtraModel.findOne({
             belongsto: searched_uid._id,
             followers: logged_uid._id
         });
 
-   
+
         if (checkExistence_logged && checkExistence_searched) {
-            
+
             // Update logged user following list
 
-           await UserExtraModel.findOneAndUpdate(
+            await UserExtraModel.findOneAndUpdate(
                 { belongsto: logged_uid._id },
                 { $pull: { following: searched_uid._id } },
-                
+
             );
 
             // Update searched user followers list
-           const search_user_follow = await UserExtraModel.findOneAndUpdate(
+            const search_user_follow = await UserExtraModel.findOneAndUpdate(
                 { belongsto: searched_uid._id },
                 { $pull: { followers: logged_uid._id } },
-                {new: true}
-              
+                { new: true }
+
             );
 
-            let followerslength =  search_user_follow.followers.length
+            let followerslength = search_user_follow.followers.length
 
-            return res.status(200).json({ success: true  , total_searched_user_followers : followerslength, unfollowing: true });
+            return res.status(200).json({ success: true, total_searched_user_followers: followerslength, unfollowing: true });
 
         } else {
             return res.status(400).json({ success: false });
         }
 
     } catch (error) {
-        
+
         return res.status(500).json({ error: "Server error" });
     }
 };
+
+
+
+export const getfollowers = async (req, res) => {
+
+    const { loggeduser, username } = req.body
+    let followers_data_tosend = []
+
+
+    try {
+        if (loggeduser && username) {
+
+            const Searched_user_data = await RegisterModel.findOne({ username: username })
+            const logged_userdata = await UserExtraModel.findOne({ belongsto: loggeduser })
+    
+    
+    
+            const Followers_list = await UserExtraModel.findOne({ belongsto: Searched_user_data._id }).populate('followers')
+    
+    
+    
+            if (Followers_list.followers.length !== 0) {
+    
+                for (let users of Followers_list.followers) {
+    
+                    const { dpimage } = await UserExtraModel.findOne({ belongsto: users._id })
+    
+                    if (logged_userdata.following.some(following => following.equals(users._id))) {
+    
+    
+                        let data = { dpimage, user_name: users.username, name: users.name, current_follows: true }
+                        followers_data_tosend.push(data)
+    
+                    }
+                    else {
+    
+                        let data = { dpimage, user_name: users.username, name: users.name, current_follows: false }
+                        followers_data_tosend.push(data)
+    
+                    }
+    
+                }
+                res.status(200).json({ data: followers_data_tosend })
+    
+            }
+            else {
+                res.status(200).json({ msg: "No followers" })
+            }
+    
+    
+    
+    
+        }
+        else {
+            res.status(400).json({ error: "An error occured!" })
+        }
+    } 
+ 
+
+    catch (error) {
+        res.status(500).json({ error: "An error occured!" })
+    }
+
+}
+
+
+export const getfollowing = async (req, res) => {
+
+    const { loggeduser, username } = req.body
+    let following_data_tosend = []
+
+
+    try {
+        if (loggeduser && username) {
+
+            const Searched_user_data = await RegisterModel.findOne({ username: username })
+    
+            const logged_userdata = await UserExtraModel.findOne({ belongsto: loggeduser }).populate('followers')
+    
+    
+    
+    
+            const Following_list = await UserExtraModel.findOne({ belongsto: Searched_user_data._id }).populate('following')
+    
+    
+    
+            if (Following_list.following.length !== 0) {
+    
+    
+    
+                for (let users of Following_list.following) {
+    
+                    const { dpimage } = await UserExtraModel.findOne({ belongsto: users._id })
+    
+                    if (logged_userdata.followers.some(follower => follower.equals(users._id))) {
+    
+    
+                        let data = { dpimage, user_name: users.username, name: users.name, current_follows: true }
+                        following_data_tosend.push(data)
+    
+                    }
+                    else {
+    
+    
+    
+                        let data = { dpimage, user_name: users.username, name: users.name, current_follows: false }
+    
+                        following_data_tosend.push(data)
+    
+                    }
+    
+    
+                }
+    
+                res.status(200).json({ data: following_data_tosend })
+    
+            }
+            else {
+                res.status(200).json({ msg: "No following" })
+            }
+    
+    
+    
+    
+        }
+        else {
+            res.status(400).json({ error: "An error occured!" })
+        }
+    
+    } catch (error) {
+        res.status(500).json({ error: "An error occured!" })
+    }
+  
+}
