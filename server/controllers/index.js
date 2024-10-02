@@ -543,7 +543,7 @@ export const getfollowers = async (req, res) => {
     
             }
             else {
-                res.status(200).json({ msg: "No followers" })
+                res.status(200).json({ data: [] })
             }
     
     
@@ -615,7 +615,7 @@ export const getfollowing = async (req, res) => {
     
             }
             else {
-                res.status(200).json({ msg: "No following" })
+                res.status(200).json({ data : [] })
             }
     
     

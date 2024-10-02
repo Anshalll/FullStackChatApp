@@ -269,7 +269,7 @@ function Profile() {
                             )}
                             <div className='flex flex-col gap-[20px]  p-[20px] rounded-lg'>
                                 
-                                <Userdatalist TotalGroups={TotalGroups} TotalFollowers={TotalFollowers} TotalFollowing={TotalFollowing} TotalPosts={TotalPosts} username={Username}/>
+                                <Userdatalist TotalGroups={TotalGroups} TotalFollowers={TotalFollowers} TotalFollowing={TotalFollowing} TotalPosts={TotalPosts} username={Username} Admin={Admin}/>
 
                                 {Admin ?
                                     (Editmode ? <button type='submit' className='bg-green-500 text-white p-[7px] rounded-lg'>

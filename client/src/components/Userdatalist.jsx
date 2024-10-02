@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useFormsMutation } from '../redux/Apis/Apis';
 import { useSelector } from 'react-redux';
-import Data_dialog from './Data_dialog';
+import Datadialog from './Datadialog';
 
 
-export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowing, TotalPosts, username }) {
+export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowing, TotalPosts, username , Admin}) {
 
     const [Data, setData] = useState([]);
     const [ShowModal , setShowModal] = useState(false)
     const [Typedata, setTypedata] = useState(null)
     const {userdata , loading} = useSelector((state) => state.userdataslice )
     const [Getdata, {isLoading: Loding_response}] = useFormsMutation()
+    const [Logged_user , setLogged_user] = useState("")
 
     const HandleDatatoshow = async (e , data_type , req_type) => {
         e.preventDefault()
@@ -21,6 +22,8 @@ export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowi
            if ( username  && userdata && !loading ) {
 
                 const loggeduser = userdata.data[0]._id 
+                const logged_username = userdata.data[0].username 
+                setLogged_user(logged_username)
 
                 let data = {loggeduser , username }
 
@@ -28,7 +31,13 @@ export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowi
                 const Handle_data = await Getdata({ data , method: "POST" , path:  `/api/${req_type}` })
 
                 if (!Loding_response) {
-                    console.log(Handle_data)
+                    if (Handle_data.data.data) {
+                        setData(Handle_data.data.data)
+                        console.log(Handle_data.data.data)
+                    }
+                    if (Handle_data.data.error) {
+                        console.error('An error occured')
+                    }
                 }
            }
         }
@@ -64,7 +73,7 @@ export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowi
                 </button>
             </div>
 
-        <Data_dialog ShowModal={ShowModal} Data={Data} Typedata={Typedata} closeDialog={closeDialog}/>
+        <Datadialog ShowModal={ShowModal} Data={Data} Typedata={Typedata} closeDialog={closeDialog} Admin={Admin} Logged_user={Logged_user}/>
         </>
     );
 }
