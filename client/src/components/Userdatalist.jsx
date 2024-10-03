@@ -33,7 +33,7 @@ export default function UserDataList({ TotalFollowers, TotalGroups, TotalFollowi
                 if (!Loding_response) {
                     if (Handle_data.data.data) {
                         setData(Handle_data.data.data)
-                        console.log(Handle_data.data.data)
+                     
                     }
                     if (Handle_data.data.error) {
                         console.error('An error occured')

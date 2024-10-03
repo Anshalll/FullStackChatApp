@@ -1,32 +1,37 @@
-import React, { useState } from 'react'
-import { useFormsMutation } from '../redux/Apis/Apis'
+import React from 'react'
+import { useFormsMutation } from "../redux/Apis/Apis"
 
+import FollowUnfollow from '../utils/Follow_unfollow'
 export default function Followprofile({ loggeduser, searcheduser , setTotalFollowers   , Following_searched , setFollowing_searched}) {
 
-   
-    const [Followorunfollow, {isLoading: Loading}] = useFormsMutation()
+    const [Followorunfollow] = useFormsMutation()
+
 
     const HandleProfilefollow = async (e) => {
         e.preventDefault()
         if (loggeduser && searcheduser) {
-            let data = {loggeduser , searcheduser}
+            
 
-            if (!Following_searched) {
-                const  Follow_user = await Followorunfollow({ data: data , path: "/api/followuser" , method: "POST"   })
-                if (Follow_user.data?.following && Follow_user.data?.total_searched_user_followers) {
-                    setFollowing_searched(Follow_user.data?.following)
-                    setTotalFollowers(Follow_user.data?.total_searched_user_followers)
+            const rcvd_resp = await FollowUnfollow(Following_searched , loggeduser , searcheduser , Followorunfollow)
+            if (rcvd_resp) {
+                if (rcvd_resp.following ) {
+                    
+                setFollowing_searched(rcvd_resp.following)
+                setTotalFollowers(rcvd_resp.total_followers)
+
                 }
-            }
-            else{
-                
-                const Unfollow_user = await await Followorunfollow({ data: data , path: "/api/unfollowuser" , method: "POST"   })
-                if(Unfollow_user.data?.unfollowing ){
-                    setTotalFollowers(Unfollow_user.data?.total_searched_user_followers)
-                    setFollowing_searched(!Unfollow_user.data?.unfollowing)
+                if (rcvd_resp.unfollowing ) {
+                    
+                    setFollowing_searched(!rcvd_resp.unfollowing)
+                    setTotalFollowers(rcvd_resp.total_followers)
+
                 }
+                    
 
             }
+
+
+
         }
       
     }

@@ -486,7 +486,9 @@ export const unFollowuser = async (req, res) => {
 
             let followerslength = search_user_follow.followers.length
 
+ 
             return res.status(200).json({ success: true, total_searched_user_followers: followerslength, unfollowing: true });
+            
 
         } else {
             return res.status(400).json({ success: false });
@@ -566,6 +568,7 @@ export const getfollowers = async (req, res) => {
 export const getfollowing = async (req, res) => {
 
     const { loggeduser, username } = req.body
+
     let following_data_tosend = []
 
 
