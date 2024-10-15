@@ -1,0 +1,33 @@
+{
+    "short_name": "Auth app",
+    "name": "Authentication app",
+    "description": "Full stack authentication app",
+    "icons": [
+        {
+            "src": "favicon.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+       
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff",
+    "screenshots": [
+        {
+            "src": "screenshorts.png",
+            "sizes": "640x320",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Install for Desktop"
+        },
+
+        {
+            "src": "screenshorts.png",
+            "sizes": "640x320",
+            "type": "image/png",
+            "label": "Install for Mobile"
+        }
+    ]
+}
