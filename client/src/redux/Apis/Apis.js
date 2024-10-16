@@ -34,6 +34,8 @@ export const AccessData = createApi({
         method: method,
         credentials: 'include',
         headers: {
+          'Cache-Control': 'no-cache',
+
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),

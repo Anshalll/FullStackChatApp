@@ -73,6 +73,8 @@ export default function Profiledetailsupdate({  setInterestsData, InterestsData 
                 return true
             }
         }
+
+        return true
     }
 
     const Dpupdatehandle = async () => {
@@ -96,6 +98,8 @@ export default function Profiledetailsupdate({  setInterestsData, InterestsData 
             }
 
         }
+
+        return true
     }
 
 
@@ -104,12 +108,14 @@ export default function Profiledetailsupdate({  setInterestsData, InterestsData 
         e.preventDefault()
 
         const data = {uid:loggedUserData.belongsto._id , name: Name, username: Username, bio: Bio , interests: InterestsData}
-        
+
+     
+
          let BG = await BGupdatehandle()
          let DP = await  Dpupdatehandle()
     
 
-        if (BG || DP) {
+        if (BG && DP) {
    
 
             const rcvd_resp = await UpdateProfile({ method: 'PATCH' , path: '/api/updateprofile' ,  data })

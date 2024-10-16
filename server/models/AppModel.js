@@ -10,8 +10,8 @@ const UserExtras = new mongoose.Schema({
     interests: Array,
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
     posts:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'posts' }],
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }],
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'register' }]
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userextra' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userextra' }]
 })
 
 

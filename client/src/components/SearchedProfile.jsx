@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setSearchedProfile } from '../redux/Searchedprofile/SearchprofileSlice'
 import { useFormsMutation } from '../redux/Apis/Apis'
 import { setLoggeduserdata } from '../redux/Loggeduser/Slice'
-
+import SearcheduserDataList from './EditStateprofile/SearcheduserDataList'
 
 import Notfound from '../components/NotFound'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -23,6 +23,7 @@ export default function SearchedProfile({ username }) {
     const [FindSearchProfile] = useFormsMutation()
     const [UpdateUserStats] = useFormsMutation()
 
+    const [StateType, setStateType] = useState(null)
 
     const [HandleOptionState, setHandleOptionState] = useState(false)
     const OptionsRef = useRef()
@@ -30,8 +31,6 @@ export default function SearchedProfile({ username }) {
     const dispatch = useDispatch()
     const { searchedprofiledata, loading } = useSelector((state) => state.SearchprofileSlice)
     const { loggedUserData, loading: loadingLoggedudata } = useSelector((state) => state.Loggeduserslice)
-
-
 
 
     useEffect(() => {
@@ -45,7 +44,6 @@ export default function SearchedProfile({ username }) {
 
 
                 if (rcvd_resp?.data?.udata) {
-
 
                     dispatch(setSearchedProfile(rcvd_resp?.data?.udata))
                 }
@@ -89,7 +87,7 @@ export default function SearchedProfile({ username }) {
     }, [HandleOptionState, OptionsRef])
 
     const HandleProfileFollow = async (e, searcheduser, loggeduser) => {
-
+        
         e.preventDefault()
 
         let sallow_logged = {...loggedUserData , following: [...loggedUserData.following]}
@@ -97,22 +95,23 @@ export default function SearchedProfile({ username }) {
         sallow_logged.following.push(searcheduser)
 
 
-
-        let sallow_searched = {...searchedprofiledata , followers: [...loggedUserData.followers]}
+        let sallow_searched = {...searchedprofiledata , followers: [...searchedprofiledata.followers]}
+       
 
         sallow_searched.followers.push(loggeduser)
 
-        let data = {logged: sallow_logged , searched: sallow_searched}
 
+        let data = {logged: sallow_logged , searched: sallow_searched}
+      
         const rcvd_resp = await UpdateUserStats({ path: '/api/followunfollowuser' , method: "PUT" , data })
         if (rcvd_resp.error?.error) {
             console.error("An error occured!")
         }
         if (rcvd_resp.data?.success) {
-
-            dispatch(setLoggeduserdata(sallow_logged))
+      
+            dispatch(setLoggeduserdata(rcvd_resp.data?.updated_logged))
             
-            dispatch(setSearchedProfile(sallow_searched))
+            dispatch(setSearchedProfile(rcvd_resp.data?.updated_searched))
         }
 
        
@@ -121,26 +120,29 @@ export default function SearchedProfile({ username }) {
     const HandleProfileUnfollow = async (e, searcheduser, loggeduser) => {
             
         e.preventDefault()
-
-        let sallow_logged = {...loggedUserData , following: loggedUserData.following.filter(e=> e !== searcheduser) }
-
+        
+        let sallow_logged = {...loggedUserData , following: loggedUserData.following.filter(e=> e._id !== searcheduser) }
+        
         dispatch(setLoggeduserdata(sallow_logged))
 
-        let sallow_searched = {...searchedprofiledata , followers: searchedprofiledata.followers.filter(e=> e !== loggeduser) }
+        let sallow_searched = {...searchedprofiledata , followers: searchedprofiledata.followers.filter(e=> e._id !== loggeduser) }
 
         dispatch(setSearchedProfile(sallow_searched))
 
         let data = {logged: sallow_logged , searched: sallow_searched}
 
         const rcvd_resp = await UpdateUserStats({ path: '/api/followunfollowuser' , method: "PUT" , data })
+
         if (rcvd_resp.error?.error) {
+
             console.error("An error occured!")
+
         }
         if (rcvd_resp.data?.success) {
+      
+            dispatch(setLoggeduserdata(rcvd_resp.data?.updated_logged))
             
-            dispatch(setLoggeduserdata(sallow_logged))
-            
-            dispatch(setSearchedProfile(sallow_searched))
+            dispatch(setSearchedProfile(rcvd_resp.data?.updated_searched))
         }
         
 
@@ -153,8 +155,9 @@ export default function SearchedProfile({ username }) {
             {ProfileError ? <Notfound /> : (loading || loadingLoggedudata ? "Loading...." : (<>
 
 
-                <div className='w-full h-full flex-col flex gap-[20px] overflow-y-auto px-[20px]'>
+                <div className='relative w-full h-full flex-col flex gap-[20px] overflow-y-auto '>
 
+                {StateType  &&   <SearcheduserDataList setStateType={setStateType} StateType={StateType}/> }
 
                     <BackgroundImage image={searchedprofiledata.backgroundimage} />
                     <div className='w-full flex justify-between'>
@@ -184,10 +187,10 @@ export default function SearchedProfile({ username }) {
 
                         <div className='flex items-center flex-col gap-[20px]'>
 
-                            <UserStats posts={searchedprofiledata.posts.length} groups={searchedprofiledata.groups.length} followers={searchedprofiledata.followers.length} following={searchedprofiledata.following.length}/>
+                            <UserStats setStateType={setStateType} posts={searchedprofiledata.posts.length} groups={searchedprofiledata.groups.length} followers={searchedprofiledata.followers.length} following={searchedprofiledata.following.length}/>
 
 
-                            {loggedUserData.following.includes(searchedprofiledata.belongsto._id) ? <button className='bg-cyan-500text-white rounded-lg p-[7px] w-full' onClick={(e) => HandleProfileUnfollow(e, searchedprofiledata.belongsto._id, loggedUserData.belongsto._id)}>Following</button> : <button onClick={(e) => HandleProfileFollow(e, searchedprofiledata.belongsto._id, loggedUserData.belongsto._id)} className='bg-green-500 text-white rounded-lg p-[7px] w-full'>Follow</button>}
+                            {loggedUserData.following.some((user) => user._id  === searchedprofiledata._id) ? <button className='bg-cyan-500text-white rounded-lg p-[7px] w-full' onClick={(e) => HandleProfileUnfollow(e, searchedprofiledata._id, loggedUserData._id)}>Following</button> : <button onClick={(e) => HandleProfileFollow(e, searchedprofiledata._id, loggedUserData._id)} className='bg-green-500 text-white rounded-lg p-[7px] w-full'>Follow</button>}
 
                             <div className='flex items-center w-full justify-center gap-[20px]'>
 

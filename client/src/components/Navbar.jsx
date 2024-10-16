@@ -46,7 +46,7 @@ export default function Navbar() {
     const DebounceSearch = debounce((value) => {
 
         if (value) {
-
+      
             let data = { value };
 
             Searching(data);
@@ -70,13 +70,13 @@ export default function Navbar() {
             <h1>Anshal's chatapp</h1>
             <div className='relative w-[700px] rounded-lg border-2 border-black h-[60%]'>
                 <input onChange={HandleSearch} type="text" placeholder='Search for something...' className='px-[10px] rounded-lg w-full h-full outline-none' />
-                <div className='w-full flex flex-col gap-[20px] absolute justify-center shadow-lg top-[60px] bg-slate-100 rounded-lg'>
+                <div className='w-full flex flex-col gap-[20px] z-[2] absolute justify-center shadow-lg top-[60px] bg-slate-100 rounded-lg'>
                     {SearchingData ? "Loading..." :
 
                         ( SearchedResult.map((value, index) => (
                             <a key={index} href={`/profile?user=${value.belongsto.username}`} className='hover:bg-gray-400 p-[10px] flex justify-between items-center border-b border-gray-300'>
                                 <div className='flex items-center gap-[20px]'>
-                                    <img src={value.dpimage} alt="" className='w-[50px] h-[50px] rounded-lg' />
+                                    <img src={value.dpimage} alt="" className='w-[50px] h-[50px] rounded-lg object-cover object-center' />
                                 </div>
                                 <div className='flex flex-col gap-[20px] justify-center w-[200px]'>
                                    {loggedUserData.belongsto.username !== value.belongsto.username ?   <>

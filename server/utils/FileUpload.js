@@ -70,3 +70,51 @@ export const FileUpload = (size , img , res , req , model , img_field) => {
         }
     });
 }
+
+
+export const DeleteImg = async (model , id , type , res) => {
+    let updateImg = await model.findOne({ belongsto: id })
+
+    if (type === "dp" && id && updateImg) {
+
+        let img = updateImg.dpimage.split('/')
+        let imgTodelete = `/uploads/${img[img.length - 2]}/${img[img.length - 1]}`
+        let path_val = path.join(path.resolve() , imgTodelete)
+ 
+
+        fs.unlink(path_val ,  (err)=>{
+            if (err) {
+                return res.status(500).json({ error: "An error occured!"  }) 
+            }
+        })
+
+        updateImg.dpimage = process.env.DEFAULT_USER
+
+        updateImg.save()
+
+        res.status(200).json({  success: true })
+    }
+
+    if (type === "bg" && id && updateImg) {
+
+        let img = updateImg.backgroundimage.split('/')
+
+        let imgTodelete = `/uploads/${img[img.length - 2]}/${img[img.length - 1]}`
+        
+        let path_val = path.join(path.resolve() , imgTodelete)
+ 
+
+        fs.unlink(path_val ,  (err)=>{
+            if (err) {
+                return res.status(500).json({ error: "An error occured!"  }) 
+            }
+        })
+
+        updateImg.backgroundimage = process.env.DEFAULT_USER
+        
+        updateImg.save()
+
+        res.status(200).json({  success: true })
+    }
+    
+}

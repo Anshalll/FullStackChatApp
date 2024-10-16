@@ -1,7 +1,6 @@
 import { UserExtrasModel } from '../models/AppModel.js'
 import { RegisterModel } from '../models/registerModel.js'
-import { FileUpload } from '../utils/FileUpload.js'
-
+import { FileUpload, DeleteImg } from '../utils/FileUpload.js'
 
 export const UpdateProfile = async (req, res) => {
 
@@ -93,7 +92,15 @@ export const SearchData = async (req, res) => {
 
         if (user) {
 
-            let udata = await UserExtrasModel.findOne({ belongsto: user._id }).populate('belongsto')
+            let udata = await UserExtrasModel.findOne({ belongsto: user._id }).populate('belongsto').populate({
+                path: "followers",
+                populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"}]
+            }).populate({
+                path: "following",
+                populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"}]
+            })
+            
+        
 
             if (udata) {
                 return res.status(200).json({ udata })
@@ -115,17 +122,17 @@ export const FollowUnfollowuser = async (req, res) => {
     const { logged, searched } = req.body
 
     if (logged && searched) {
-
-        await UserExtrasModel.findOneAndUpdate({ _id: logged._id }, { following: logged.following }, { new: true })
-
-
-
-        await UserExtrasModel.findOneAndUpdate({ _id: searched._id }, { followers: searched.followers }, { new: true })
+       
+        const updated_logged = await UserExtrasModel.findOneAndUpdate({ _id: logged._id }, { following: logged.following }, { new: true }).populate('followers').populate('following')
 
 
 
+        const updated_searched =  await UserExtrasModel.findOneAndUpdate({ _id: searched._id }, { followers: searched.followers }, { new: true }).populate('belongsto').populate('followers').populate('following')
 
-        res.status(200).json({ success: true })
+
+
+
+        res.status(200).json({ success: true , updated_logged , updated_searched})
     }
     else {
         res.status(400).status({ error: "An error occured!" })
@@ -137,7 +144,7 @@ export const UpdateBg = async (req, res) => {
 
     try {
         const { bg } = req.files;
-     
+
         let size = 10 * 1024 * 1024;
         FileUpload(size, bg, res, req, UserExtrasModel, "backgroundimage");
     } catch (error) {
@@ -160,6 +167,43 @@ export const UpdateDp = async (req, res) => {
         res
             .status(400)
             .json({ error: error.message || "An error occurred. Please try again." });
+    }
+
+}
+
+
+export const Deleteimg = async (req, res) => {
+
+    const { type } = req.body
+    const { id } = req
+
+    DeleteImg(UserExtrasModel, id, type, res)
+
+
+}
+
+export const GetStatsData = async (req, res) => {
+
+    const { data } = req.body
+    let dataTosend = []
+
+    async function findData(id) {
+
+        let udata = await UserExtrasModel.findOne({ belongsto: id }).populate('belongsto')
+       
+        return { uid: udata.belongsto._id, username: udata.belongsto.username, name: udata.belongsto.name, dpimage: udata.dpimage, backgroundimage: udata.backgroundimage }
+
+    }
+
+    if (data) {
+        for (let a of data) {
+            let udata = await findData(a)
+            dataTosend.push(udata)
+        }
+
+
+
+        res.status(200).json({ data: dataTosend })
     }
 
 }

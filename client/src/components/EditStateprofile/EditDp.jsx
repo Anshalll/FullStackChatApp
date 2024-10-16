@@ -1,12 +1,15 @@
 import React, {useRef , useState} from 'react'
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-
+import {useFormsMutation} from '../../redux/Apis/Apis'
+import { useSelector } from 'react-redux';
 
 export default function EditDp({ image , setDpUpdate , DpError}) {
 
   const DpRef = useRef()
   const [ImgPreview, setImgPreview] = useState(image)
+  const [DeleteDP] = useFormsMutation()
+  const { loggedUserData, loading } = useSelector((state) => state.Loggeduserslice)
 
 
   const DpHandle = () => {
@@ -39,11 +42,26 @@ export default function EditDp({ image , setDpUpdate , DpError}) {
   }
 
 
-  const HandleBgDelete = () => {
+  const HandleDpdelete = async () => {
+      
+    if (!loading && loggedUserData.dpimage !== "http://localhost:4000/defaults/default_user.jpg") {
+
+      const update_dp = await DeleteDP({  method: "PATCH" , path: '/api/deleteimg' , data: {type: "dp"} })
+      if (update_dp.data.success) {
+        setImgPreview('http://localhost:4000/defaults/default_user.jpg')
+        DpRef.current.value = ""
+        setDpUpdate(null)
+      }
+      if (update_dp.error) {
+          console.error(update_dp.error?.error)
+      }
+
+
+
+
+
+    }
     
-    setImgPreview('http://localhost:4000/defaults/default_user.jpg')
-    DpRef.current.value = ""
-    setDpUpdate(null)
   }
 
   return (
@@ -55,9 +73,9 @@ export default function EditDp({ image , setDpUpdate , DpError}) {
         <img src={ImgPreview} alt="" className='w-full  h-full  rounded-full object-cover object-center' />
        
         <div className='  gap-[20px] rounded-full absolute w-full h-full flex items-center justify-center'>
-          <button onClick={DpHandle} className='text-black shadow-lg hover:bg-[crimson] hover:text-[white] z-[1] bg-white rounded-full w-[30px] h-[30px]'><FileUploadOutlinedIcon/><input onChange={DpUpdate} type="file" ref={DpRef} className='invisible' /></button>
+          <button onClick={DpHandle} className='text-black shadow-lg hover:bg-[crimson] hover:text-[white] z-[1] bg-white rounded-full w-[30px] h-[30px]'><FileUploadOutlinedIcon/><input onChange={DpUpdate} type="file" ref={DpRef} className='invisible'  accept='.jpg, .png , .jpeg'/></button>
 
-          <button onClick={HandleBgDelete} className='text-black shadow-lg hover:bg-[crimson] hover:text-[white] z-[1] bg-white rounded-full w-[30px] h-[30px]'><DeleteOutlineOutlinedIcon/></button>
+          <button onClick={HandleDpdelete} className='text-black shadow-lg hover:bg-[crimson] hover:text-[white] z-[1] bg-white rounded-full w-[30px] h-[30px]'><DeleteOutlineOutlinedIcon/></button>
         </div>
 
 

@@ -18,9 +18,30 @@ export const Index = async (req, res) => {
   
     const user = await RegisterModel.findById(id).select('-password')
 
-    const extradata = await UserExtrasModel.findOne({ belongsto: user._id }).populate('belongsto')
 
+
+
+    const extradata = await UserExtrasModel.findOne({ belongsto: user._id })
+    .populate('belongsto')  
+    .populate({
+      path: 'followers',  
+      populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"} ],
+ 
+    })
+    .populate({
+        path: 'following',  
+        populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"} ],
   
+      });
+    //We are passing deep populated data because
+
+    //If logged user unfollows a user from his followings , we would also need to remove the logged user from the followers  list of the user being followed
+
+ 
+    
+
+
+    
     res.status(200).json({ user: extradata  , auth: true})
 
 }

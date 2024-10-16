@@ -4,7 +4,7 @@ import BackgroundImage from './BackgroundImage'
 import Dpimage from './Dpimage'
 import Profiledetailsupdate from './EditStateprofile/Profiledetailsupdate'
 import UserStats from './UserStats'
-
+import DataList from './EditStateprofile/DataList'
 import EditBg from './EditStateprofile/EditBg'
 import EditDp from './EditStateprofile/EditDp'
 
@@ -16,7 +16,7 @@ export default function ProfileData() {
     const [BgUpdate , setBgUpdate] = useState(null)
     const [DpError, setDPError] = useState(null)
     const [BgError, setBgError] = useState(null)
-
+    const [StateType, setStateType] = useState(null)
 
     const [InterestsData , setInterestsData] = useState([])
   
@@ -26,8 +26,9 @@ export default function ProfileData() {
 
 
         <>
-            {loading ? <p>Loading...</p> : <div className='w-full h-full flex-col flex gap-[20px] overflow-y-auto px-[20px]'>
+            {loading ? <p>Loading...</p> : <div className='relative w-full h-full flex-col flex gap-[20px] overflow-y-auto '>
 
+                {StateType  &&   <DataList setStateType={setStateType} StateType={StateType}/> }
 
                {EditState ? <EditBg  BgError={BgError} setBgUpdate={setBgUpdate} image={loggedUserData.backgroundimage}/> :  <BackgroundImage  image={loggedUserData.backgroundimage} />}
                 <div className='w-full flex justify-between'>
@@ -61,7 +62,8 @@ export default function ProfileData() {
 
                     <div className='flex items-center flex-col gap-[20px]'>
 
-                        <UserStats posts={loggedUserData.posts.length} groups={loggedUserData.groups.length} followers={loggedUserData.followers.length} following={loggedUserData.following.length} />
+                        <UserStats setStateType={setStateType} posts={loggedUserData.posts.length} groups={loggedUserData.groups.length} followers={loggedUserData.followers.length} following={loggedUserData.following.length} />
+
 
                         {EditState ? <button className='bg-[crimson] text-white rounded-lg w-full p-[7px]' onClick={() => setEditState(false)}>Cancel</button> : <button onClick={() => setEditState(true)} className='bg-[crimson] text-white rounded-lg w-full p-[7px]'>Edit profile</button>}
 

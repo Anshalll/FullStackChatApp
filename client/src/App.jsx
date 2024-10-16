@@ -39,6 +39,7 @@ export default function App() {
         }
         if (rcvd_resp?.data?.auth) {
           dispatch(Auth())
+  
           dispatch(setLoggeduserdata(rcvd_resp?.data?.user))
         }
        
