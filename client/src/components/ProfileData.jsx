@@ -7,6 +7,9 @@ import UserStats from './UserStats'
 import DataList from './EditStateprofile/DataList'
 import EditBg from './EditStateprofile/EditBg'
 import EditDp from './EditStateprofile/EditDp'
+import CreatepostDialog from './CreatepostDialog'
+
+
 
 export default function ProfileData() {
 
@@ -29,7 +32,7 @@ export default function ProfileData() {
             {loading ? <p>Loading...</p> : <div className='relative w-full h-full flex-col flex gap-[20px] overflow-y-auto '>
 
                 {StateType  &&   <DataList setStateType={setStateType} StateType={StateType}/> }
-
+                  <CreatepostDialog/>
                {EditState ? <EditBg  BgError={BgError} setBgUpdate={setBgUpdate} image={loggedUserData.backgroundimage}/> :  <BackgroundImage  image={loggedUserData.backgroundimage} />}
                 <div className='w-full flex justify-between'>
 
@@ -70,14 +73,14 @@ export default function ProfileData() {
                     </div>
 
                 </div>
-
+{/* 
                 <div className='flex items-center gap-[20px]'>
                     <p>Posts</p>
                     <p>Groups</p>
                   
 
 
-                </div>
+                </div> */}
 
             </div>}
 

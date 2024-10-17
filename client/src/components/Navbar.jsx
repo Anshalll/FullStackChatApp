@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { useFormsMutation } from '../redux/Apis/Apis';
 import { useSelector } from 'react-redux';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 
 export default function Navbar() {
 
@@ -65,6 +66,17 @@ export default function Navbar() {
         DebounceSearch(value);
     };
 
+
+    const HandlePostDialog = () => {
+
+        let comp = document.getElementById('createPosts')
+
+       
+        comp.style.display = "flex"
+        
+        
+    }
+
     return (
         <nav className='w-full h-full px-[20px] flex justify-between items-center'>
             <h1>Anshal's chatapp</h1>
@@ -91,9 +103,14 @@ export default function Navbar() {
                     }
                 </div>
             </div>
+
             <div className='flex gap-[20px] items-center'>
+
+                <button onClick={HandlePostDialog} title='create post' className='cursor-pointer'><FileUploadOutlinedIcon/></button>
                 <NavLink to={'/profile'} className={({ isActive }) => `${isActive ? "bg-[crimson] text-white" : "border-2 border-black"} px-[40px] p-[7px] rounded-full`}>Profile</NavLink>
+
             </div>
+
         </nav>
     );
 }

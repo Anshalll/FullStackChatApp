@@ -9,12 +9,13 @@ const UserExtras = new mongoose.Schema({
     bio: String,
     interests: Array,
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'groups' }],
-    posts:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'posts' }],
+    posts:  Array,
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userextra' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userextra' }]
 })
 
 
-export const UserExtrasModel =  mongoose.model('userextra' , UserExtras)
 
+
+export const UserExtrasModel =  mongoose.model('userextra' , UserExtras)
 
