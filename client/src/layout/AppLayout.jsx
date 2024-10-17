@@ -11,7 +11,7 @@ const AppLayout = () => (Wrappedcomponent) => {
             <header className="w-full h-[80px] text-[13px]">
                 <Navbar/>
             </header>
-                <main className="text-[13px] h-[calc(100vh-80px)]">
+                <main className="text-[13px] h-[calc(100vh-80px)] p-[20px]">
                     <Wrappedcomponent {...props} />
                 </main>
             </>

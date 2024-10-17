@@ -1,5 +1,5 @@
 import express from 'express'
-import { UpdateProfile  , SearchData , FollowUnfollowuser , ListProfile , UpdateBg , UpdateDp , Deleteimg , GetStatsData} from '../controllers/App.js'
+import { UpdateProfile  , SearchData , FollowUnfollowuser , ListProfile , UpdateBg , UpdateDp , Deleteimg , GetStatsData, updateFollowers} from '../controllers/App.js'
 import { ValidateUser } from '../middleware/ValidateUserMiddleware.js'
 
 
@@ -14,3 +14,4 @@ AppRouter.patch('/updatebg' , ValidateUser , UpdateBg)
 AppRouter.patch('/updatedp' , ValidateUser , UpdateDp)
 AppRouter.patch('/deleteimg' , ValidateUser , Deleteimg)
 AppRouter.post('/userstatsdata' , ValidateUser, GetStatsData)
+AppRouter.patch('/updatefollowers' , ValidateUser , updateFollowers)

@@ -40,7 +40,7 @@ export const Index = async (req, res) => {
  
     
 
-
+      
     
     res.status(200).json({ user: extradata  , auth: true})
 

@@ -100,7 +100,6 @@ export const SearchData = async (req, res) => {
                 populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"}]
             })
             
-        
 
             if (udata) {
                 return res.status(200).json({ udata })
@@ -205,5 +204,27 @@ export const GetStatsData = async (req, res) => {
 
         res.status(200).json({ data: dataTosend })
     }
+
+}
+
+
+export const updateFollowers = async (req, res) => {
+
+    const {logged, searched} = req.body
+
+    if (logged && searched) {
+
+            const logged_user = await UserExtrasModel.findOneAndUpdate({ _id: logged._id } , {followers: logged.followers} , {new: true})
+
+
+            const searched_user = await UserExtrasModel.findOneAndUpdate({  _id : searched._id } , {following: searched.following} , {new: true})
+
+            res.status(200).json({  success: true , updated_logged : logged_user , updated_searched : searched_user })
+
+    }   
+    else{
+        res.status(400).json({ error: "An error occured!" })
+    }
+
 
 }
