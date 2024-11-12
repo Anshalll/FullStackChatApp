@@ -228,3 +228,16 @@ export const updateFollowers = async (req, res) => {
 
 
 }
+
+export const Uploadpostdetails = async (req, res) => {
+
+    res.status(200).json({ msg: "Details uploaded" })
+
+}
+
+export const Uploadpost = async (req, res) => {
+    console.log(req.files)
+    
+    res.status(200).json({ msg: "Post uploaded" })
+    
+}
