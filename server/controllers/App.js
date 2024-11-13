@@ -1,6 +1,6 @@
 import { UserExtrasModel } from '../models/AppModel.js'
 import { RegisterModel } from '../models/registerModel.js'
-import { FileUpload, DeleteImg } from '../utils/FileUpload.js'
+import { FileUpload, DeleteImg , Postupload} from '../utils/FileUpload.js'
 
 export const UpdateProfile = async (req, res) => {
 
@@ -229,15 +229,20 @@ export const updateFollowers = async (req, res) => {
 
 }
 
-export const Uploadpostdetails = async (req, res) => {
-
-    res.status(200).json({ msg: "Details uploaded" })
-
-}
 
 export const Uploadpost = async (req, res) => {
-    console.log(req.files)
+
+    const {post} = req.files
     
-    res.status(200).json({ msg: "Post uploaded" })
+    const {id} = req
+
+    let Postpath = await Postupload(post)
     
+    let post_data = {path: Postpath , desc: req.body.description , hidelike : req.body.hidelike , allowcommenting: req.body.allowcommenting , sharing: req.body.sharing, tags: req.body.tags , audience: req.body.audience}
+    
+     await UserExtrasModel.findOneAndUpdate({ belongsto: id } , {$push:  {posts: post_data} } , {new: true})
+
+    res.status(200).json({ message: "Post uploaded"  })
+
+
 }

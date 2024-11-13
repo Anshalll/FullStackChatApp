@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import EmojiPeopleOutlinedIcon from '@mui/icons-material/EmojiPeopleOutlined';
-import {useFormsMutation , useFileUploadMutation} from '../../redux/Apis/Apis'
+import { useFileUploadMutation} from '../../redux/Apis/Apis'
 
-export default function ImageUpload({ Image }) {
+export default function Postupload({ Image }) {
 
-    const [UploadImagedetails] = useFormsMutation()
+   
     const [PostUpload] = useFileUploadMutation()
 
     const [ImgPreview, setImgPreview] = useState(null)
@@ -30,16 +30,20 @@ export default function ImageUpload({ Image }) {
         e.preventDefault()
         let formdata = new FormData(e.target)
  
-        let maindata = Object.fromEntries(formdata)
+     
 
-        let PostForm = new FormData()
+        
+        formdata.append("post" , Image)
+    
+        let Uploadpost = await PostUpload({ path: "/api/uploadpost" , method: "POST" , data: formdata  })
 
-        const Uploaddetails = await UploadImagedetails({ path: '/api/postdetailsupload' , method: "POST" ,  data: maindata })
-        
-        PostForm.append("post" , Image)
-        
-        let Uploadpost = await PostUpload({ path: "/api/uploadpost" , method: "POST" , data: PostForm  })
-      
+        if (Uploadpost.error) {
+            console.error(Uploadpost.error.message)
+
+        }
+        else if(Uploadpost.data){
+            window.location.reload()
+        }
     }
 
     return (
@@ -66,7 +70,7 @@ export default function ImageUpload({ Image }) {
                             <p>Audience</p>
                         </div>
 
-                        <select name="audience-image" id="audience-image" className='outline-none flex w-[40%]'>
+                        <select name="audience" id="audience" className='outline-none flex w-[40%]'>
 
                             <option value="followers">Followers</option>
                             <option value="public">Public</option>

@@ -1,9 +1,7 @@
 import React, {useRef, useState} from 'react'
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-// import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
-// import SlideshowOutlinedIcon from '@mui/icons-material/SlideshowOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ImageUpload from './EditStateprofile/ImageUpload';
+import ImageUpload from './EditStateprofile/Postupload';
 
 export default function CreatepostDialog() {
 

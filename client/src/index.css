@@ -3,3 +3,6 @@
 @tailwind utilities;
 
 
+.Scroller::-webkit-scrollbar{
+    display: none;
+}

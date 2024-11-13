@@ -1,4 +1,4 @@
-import React , {useState} from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import BackgroundImage from './BackgroundImage'
 import Dpimage from './Dpimage'
@@ -15,32 +15,34 @@ export default function ProfileData() {
 
     const [EditState, setEditState] = useState(false)
 
-    const [DpUpdate , setDpUpdate] = useState(null)
-    const [BgUpdate , setBgUpdate] = useState(null)
+    const [DpUpdate, setDpUpdate] = useState(null)
+    const [BgUpdate, setBgUpdate] = useState(null)
     const [DpError, setDPError] = useState(null)
     const [BgError, setBgError] = useState(null)
     const [StateType, setStateType] = useState(null)
 
-    const [InterestsData , setInterestsData] = useState([])
-  
+    const [InterestsData, setInterestsData] = useState([])
+
     const { loggedUserData, loading } = useSelector((state) => state.Loggeduserslice)
 
     return (
 
 
         <>
-            {loading ? <p>Loading...</p> : <div className='relative w-full h-full flex-col flex gap-[20px] overflow-y-auto '>
+        <div className='flex justify-center w-full'>
 
-                {StateType  &&   <DataList setStateType={setStateType} StateType={StateType}/> }
-                  <CreatepostDialog/>
-               {EditState ? <EditBg  BgError={BgError} setBgUpdate={setBgUpdate} image={loggedUserData.backgroundimage}/> :  <BackgroundImage  image={loggedUserData.backgroundimage} />}
+            {loading ? <p>Loading...</p> : <div className='w-[1500px] Scroller relative  h-full flex-col flex gap-[20px] overflow-y-auto '>
+
+                {StateType && <DataList setStateType={setStateType} StateType={StateType} />}
+                <CreatepostDialog />
+                {EditState ? <EditBg BgError={BgError} setBgUpdate={setBgUpdate} image={loggedUserData.backgroundimage} /> : <BackgroundImage image={loggedUserData.backgroundimage} />}
                 <div className='w-full flex justify-between'>
 
                     <div className='flex items-center gap-[20px]'>
 
                         <div className='flex flex-col'>
 
-                        {EditState ? <EditDp  DpError={DpError} setDpUpdate={setDpUpdate} image={loggedUserData.dpimage}/> :  <Dpimage  image={loggedUserData.dpimage}/>}
+                            {EditState ? <EditDp DpError={DpError} setDpUpdate={setDpUpdate} image={loggedUserData.dpimage} /> : <Dpimage image={loggedUserData.dpimage} />}
 
                         </div>
                         {!EditState && <div className='flex flex-col gap-[20px]'>
@@ -73,17 +75,25 @@ export default function ProfileData() {
                     </div>
 
                 </div>
-{/* 
-                <div className='flex items-center gap-[20px]'>
-                    <p>Posts</p>
-                    <p>Groups</p>
-                  
+                <div className='flex flex-col gap-[20px] items-center justify-center w-full'>
 
+                    <h1 className='font-bold text-lg w-full'>User post</h1>
+                    <div className='w-full grid grid-cols-4 gap-[40px] py-[20px]'>
+                        
+                            {loggedUserData.posts.map((value, index) => (
+                               
 
-                </div> */}
-
+                                <div  key={index} className='w-[350px] h-[350px] hover:w-[355px] hover:h-[355px]'>
+                                    <img src={value.path} className='w-full h-full object-cover onject-center' alt="" />
+                                </div>
+                               
+                            ))}
+                                
+                    </div>
+                </div>
             </div>}
 
+        </div>
         </>
 
 
