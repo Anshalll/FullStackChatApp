@@ -25,6 +25,8 @@ export default function ProfileData() {
 
     const { loggedUserData, loading } = useSelector((state) => state.Loggeduserslice)
 
+    
+
     return (
 
 
@@ -84,13 +86,15 @@ export default function ProfileData() {
                                
 
                                 <div  key={index} className='w-[350px] h-[350px] hover:w-[355px] hover:h-[355px]'>
-                                    <img src={value.path} className='w-full h-full object-cover onject-center' alt="" />
+                                    <img src={value.path} className='w-full rounded-sm h-full object-cover onject-center' alt="" />
                                 </div>
                                
                             ))}
                                 
                     </div>
                 </div>
+
+
             </div>}
 
         </div>
