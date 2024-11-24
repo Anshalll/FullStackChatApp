@@ -13,11 +13,28 @@ import cookieParser from 'cookie-parser'
 import { AppRouter } from './routes/AppRoutes.js'
 import path from 'path'
 import fileUpload from 'express-fileupload'
+import { Clientsockets } from './controllers/sockets.js'
+import { Server } from 'socket.io'
+
+import { createServer } from 'http'
+
 
 dotenv.config({ path: '.env' })
 
 
 const app = express()
+
+const socketserver = createServer(app)
+
+export const io = new Server(socketserver, {
+    cors: {
+        origin: '*',
+        credentials: true, // Correct value
+    },
+});
+
+Clientsockets()
+
 app.use(express.static(path.join(path.resolve() , '/uploads')))
 
 app.use(cookieParser())
@@ -58,8 +75,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/' , Router)
 app.use('/api' , AppRouter)
 
-app.listen(process.env.PORT, () => {
 
-    
-    console.log(`SERVER RUNNING ON PORT ${process.env.PORT}`)
-})
+
+socketserver.listen(process.env.PORT, () => {
+    console.log(`SERVER RUNNING ON PORT ${process.env.PORT}`);
+});

@@ -78,10 +78,10 @@ export default function Navbar() {
     }
 
     return (
-        <nav className='w-full h-full px-[20px] flex justify-between items-center'>
+        <nav className='w-full h-full px-[20px] bg-black text-white flex justify-between items-center'>
             <h1>Anshal's chatapp</h1>
             <div className='relative w-[700px] rounded-lg border-2 border-black h-[60%]'>
-                <input onChange={HandleSearch} type="text" placeholder='Search for something...' className='px-[10px] rounded-lg w-full h-full outline-none' />
+                <input onChange={HandleSearch} type="text" placeholder='Search for something...' className='bg-gray-800 px-[10px] rounded-lg w-full h-full outline-none' />
                 <div className='w-full flex flex-col gap-[20px] z-[2] absolute justify-center shadow-lg top-[60px] bg-slate-100 rounded-lg'>
                     {SearchingData ? "Loading..." :
 

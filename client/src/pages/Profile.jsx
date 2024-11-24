@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import AppLayout from '../layout/AppLayout'
+import { ProfileLayout } from '../layout/AppLayout'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ProfileData from '../components/ProfileData'
 import SearchedProfile from '../components/SearchedProfile'
@@ -50,4 +50,4 @@ function Profile() {
 }
 
 
-export default AppLayout()(Profile)
+export default ProfileLayout()(Profile)

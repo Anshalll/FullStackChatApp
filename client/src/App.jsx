@@ -14,6 +14,7 @@ const Register = lazy(() => import("./pages/Register.jsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
 const Resetpass = lazy(() => import("./pages/Resetpass.jsx"));
 const Profile = lazy(() => import("./pages/Profile.jsx"))
+const Userchat = lazy(() => import("./pages/Userchat.jsx"))
 
 
 
@@ -73,8 +74,11 @@ export default function App() {
 
 
           <Route element={<ProtectedRoute user={user} />}>
+          
             <Route path="/" element={<Home />} />
             <Route path='/profile' element={<Profile/>} />
+            <Route path='/chat' element={<Userchat/>} />
+
 +          </Route>
 
           <Route path="*" element={<NotFound />} />
