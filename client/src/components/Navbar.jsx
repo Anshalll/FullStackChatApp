@@ -76,7 +76,6 @@ export default function Navbar() {
         
         
     }
-
     return (
         <nav className='w-full h-full px-[20px] bg-black text-white flex justify-between items-center'>
             <h1>Anshal's chatapp</h1>

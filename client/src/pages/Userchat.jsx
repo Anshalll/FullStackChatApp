@@ -1,20 +1,50 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import AppLayout from '../layout/AppLayout'
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import io from 'socket.io-client'
-
+import { useFormsMutation } from '../redux/Apis/Apis';
 
 
 
 function Userchat() {
 
-
+    
     const socket = io("http://localhost:4000");
-
+    const [SearchUser] = useFormsMutation()
+    const [Chatuser, setChatUser]  = useState({  })
+    const [Error, setError] = useState("")
 
     useEffect(() => {
-     
+
+
+        const searched = window.location.search
+        const path = new URLSearchParams(searched)
+
+
+        const Searchuserfunc = async (username) => {
+            const rcvd_resp = await SearchUser({ path: '/api/searchdata/' , method: "POST" , data: {username} })
+            if (rcvd_resp.data) {
+                
+                setChatUser(rcvd_resp.data?.udata)
+            }
+            else if(rcvd_resp.error){
+
+                    setError(rcvd_resp.error)
+                    console.error(rcvd_resp.error)
+
+                }       
+
+        }
+
+
+        if (Error === "") {
+            if (path.get('user') && !Chatuser?.belongsto?.username) {
+                Searchuserfunc(path.get('user'))
+            }
+        }
+      
+
         socket.on("connect", () => {
             console.log("Connected to server with socket id:", socket.id);
         });
@@ -29,20 +59,21 @@ function Userchat() {
             socket.off("connect");
             socket.off("message");
         };
-    }, [socket]); 
-
+    }, [socket , SearchUser , Chatuser , Error]); 
+    //Fix bugs here, (Making more then 1 request)
     return (
+    
+        <>
 
-
-        <div className='w-[calc(100%-400px)] h-full flex flex-col'>
+        {Error ? <p className='w-[calc(100%-400px)] h-full flex items-center justify-center text-lg font-bold'>Page not found</p> : <div className='w-[calc(100%-400px)] h-full flex flex-col'>
 
             <div className='bg-black h-[80px] flex items-center w-full px-[20px]'>
                 <div className='flex gap-[20px]  items-center'>
 
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/512px-LEGO_logo.svg.png" className='border-2 border-gray-300 rounded-full w-[40px] h-[40px]' alt="" />
+                    <img src={Chatuser?.dpimage} className='border-2 border-gray-300 rounded-full w-[40px] h-[40px]' alt="" />
                     <div className='flex flex-col gap-[10px] '>
-                        <p className='text-white'>@Anshal_codes</p>
-                        <p className='text-gray-400'>Online</p>
+                        <p className='text-white'>@{Chatuser?.belongsto?.username}</p>
+                        <p className='text-gray-400'>offline</p>
                     </div>
                 </div>
 
@@ -71,7 +102,8 @@ function Userchat() {
 
             </div>
 
-        </div>
+        </div>}
+        </>
 
 
     )
