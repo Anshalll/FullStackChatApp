@@ -49,6 +49,10 @@ export default function App() {
         console.log(callback)
       })
 
+      socket.current.emit("online_users" , userdata.belongsto?._id, (callback) => {
+        console.log(callback)
+      }) 
+
 
       socket.current.on("recieved_message", (res) => {
         console.log(res)

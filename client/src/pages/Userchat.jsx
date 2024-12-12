@@ -15,7 +15,7 @@ function Userchat({ setCurrentUser , UserOnline }) {
     const [Chatuser, setChatUser] = useState({});
     const [Error, setError] = useState("");
     const [Message, setMessage] = useState("")
-    const [MessageLists, setMessageLists] = useState()
+    const [MessageLists, setMessageLists] = useState([])
 
 
     useEffect(() => {
@@ -90,7 +90,13 @@ function Userchat({ setCurrentUser , UserOnline }) {
             }
             if (socket && socket.current) {
                 socket.current.emit("sendmessage", data, (res) => {
-                    console.log(res);
+                    if (res.success) {
+                        
+                        setMessageLists((prev) => [...prev , {message: Message, type: "sender" }])
+
+
+
+                    }
 
                 })
 
@@ -124,8 +130,15 @@ function Userchat({ setCurrentUser , UserOnline }) {
                 </div>
 
 
-                <div className='min-h-[calc(100%-160px)] bg-gray-900  flex flex-col gap-[20px] w-full'>
+                <div className='min-h-[calc(100%-160px)] bg-gray-900  flex flex-col gap-[20px] w-full overflow-y-auto p-[20px] justify-end '>
+                    {MessageLists.map((value , index) => (
+                        value.type === "sender" ?  <div key={index} className='  min-h-[40px] w-full flex justify-end  text-white  rounded-lg'>
+                            
+                            <p className='max-w-[300px] rounded-lg px-[20px] bg-gray-800 flex items-center'>{value.message}</p>
+                        </div> : ""
+                        
 
+                    ))}
                 </div>
 
                 <div className='bg-black h-[80px] w-full flex items-center justify-center px-[20px]'>

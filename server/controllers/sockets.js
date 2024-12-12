@@ -1,10 +1,22 @@
 import { io } from "../index.js";
+import {ChatRoomModel} from '../models/AppModel.js'
+
+
 
 let users = {};
 
 export const Clientsockets = () => {
-  io.on("connection", (socket) => {
-    console.log("New connection established:", socket.id);
+
+
+  io.on("connection",  (socket) => {
+    
+    socket.on("online_users" , async (userid, callback) => {
+      let findings = await ChatRoomModel.find()
+      callback(findings)
+
+
+    })
+
 
     socket.on("register", (userid, callback) => {
       if (userid) {
