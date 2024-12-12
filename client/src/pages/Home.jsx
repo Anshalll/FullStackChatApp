@@ -1,5 +1,5 @@
 import React from 'react'
-import AppLayout from '../layout/AppLayout'
+
 
 
 function Home() {
@@ -10,4 +10,4 @@ function Home() {
 
 
 
-export default AppLayout()(Home)
+export default Home

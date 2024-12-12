@@ -7,7 +7,7 @@ import {  NavLink } from 'react-router-dom';
 
 
 
-export default function SidebarChat() {
+export default function SidebarChat({ setChatuser }) {
 
     const { loggedUserData, loading } = useSelector((state) => state.Loggeduserslice)
 
@@ -29,7 +29,7 @@ export default function SidebarChat() {
                         <p className='text-white text-lg'>Recommended</p>
                         <>
                             {loggedUserData?.following.slice(0, 50).map((value, index) => (
-                                <NavLink to={`/chat?user=${value.belongsto?.username}`}  className='w-full flex items-center gap-[20px]' key={index}>
+                                <NavLink  to={`/chat?user=${value.belongsto?.username}`}  className='w-full flex items-center gap-[20px]' key={index}>
 
                                     <img src={value.dpimage} className='w-[40px] h-[40px] rounded-full object-cover' alt="" />
                                     <div className='flex flex-col w-full items-center gap-[10px]'>

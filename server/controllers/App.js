@@ -1,7 +1,7 @@
-import { UserExtrasModel } from '../models/AppModel.js'
+import { UserExtrasModel, ChatRoomModel } from '../models/AppModel.js'
 import { RegisterModel } from '../models/registerModel.js'
-import { FileUpload, DeleteImg , Postupload} from '../utils/FileUpload.js'
-
+import { FileUpload, DeleteImg, Postupload } from '../utils/FileUpload.js'
+import { GenerateChatroomId } from '../utils/GenerateVals.js'
 export const UpdateProfile = async (req, res) => {
 
     const { name, username, bio, interests, uid } = req.body
@@ -94,12 +94,12 @@ export const SearchData = async (req, res) => {
 
             let udata = await UserExtrasModel.findOne({ belongsto: user._id }).populate('belongsto').populate({
                 path: "followers",
-                populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"}]
+                populate: [{ path: 'belongsto' }, { path: "following" }, { path: "followers" }]
             }).populate({
                 path: "following",
-                populate: [{ path: 'belongsto' }, {path: "following"} , {path: "followers"}]
+                populate: [{ path: 'belongsto' }, { path: "following" }, { path: "followers" }]
             })
-            
+
 
             if (udata) {
                 return res.status(200).json({ udata })
@@ -121,17 +121,17 @@ export const FollowUnfollowuser = async (req, res) => {
     const { logged, searched } = req.body
 
     if (logged && searched) {
-       
+
         const updated_logged = await UserExtrasModel.findOneAndUpdate({ _id: logged._id }, { following: logged.following }, { new: true }).populate('followers').populate('following')
 
 
 
-        const updated_searched =  await UserExtrasModel.findOneAndUpdate({ _id: searched._id }, { followers: searched.followers }, { new: true }).populate('belongsto').populate('followers').populate('following')
+        const updated_searched = await UserExtrasModel.findOneAndUpdate({ _id: searched._id }, { followers: searched.followers }, { new: true }).populate('belongsto').populate('followers').populate('following')
 
 
 
 
-        res.status(200).json({ success: true , updated_logged , updated_searched})
+        res.status(200).json({ success: true, updated_logged, updated_searched })
     }
     else {
         res.status(400).status({ error: "An error occured!" })
@@ -189,7 +189,7 @@ export const GetStatsData = async (req, res) => {
     async function findData(id) {
 
         let udata = await UserExtrasModel.findOne({ belongsto: id }).populate('belongsto')
-       
+
         return { uid: udata.belongsto._id, username: udata.belongsto.username, name: udata.belongsto.name, dpimage: udata.dpimage, backgroundimage: udata.backgroundimage }
 
     }
@@ -210,19 +210,19 @@ export const GetStatsData = async (req, res) => {
 
 export const updateFollowers = async (req, res) => {
 
-    const {logged, searched} = req.body
+    const { logged, searched } = req.body
 
     if (logged && searched) {
 
-            const logged_user = await UserExtrasModel.findOneAndUpdate({ _id: logged._id } , {followers: logged.followers} , {new: true})
+        const logged_user = await UserExtrasModel.findOneAndUpdate({ _id: logged._id }, { followers: logged.followers }, { new: true })
 
 
-            const searched_user = await UserExtrasModel.findOneAndUpdate({  _id : searched._id } , {following: searched.following} , {new: true})
+        const searched_user = await UserExtrasModel.findOneAndUpdate({ _id: searched._id }, { following: searched.following }, { new: true })
 
-            res.status(200).json({  success: true , updated_logged : logged_user , updated_searched : searched_user })
+        res.status(200).json({ success: true, updated_logged: logged_user, updated_searched: searched_user })
 
-    }   
-    else{
+    }
+    else {
         res.status(400).json({ error: "An error occured!" })
     }
 
@@ -232,17 +232,72 @@ export const updateFollowers = async (req, res) => {
 
 export const Uploadpost = async (req, res) => {
 
-    const {post} = req.files
-    
-    const {id} = req
+    const { post } = req.files
+
+    const { id } = req
 
     let Postpath = await Postupload(post)
-    
-    let post_data = {path: Postpath , desc: req.body.description , hidelike : req.body.hidelike , allowcommenting: req.body.allowcommenting , sharing: req.body.sharing, tags: req.body.tags , audience: req.body.audience}
-    
-     await UserExtrasModel.findOneAndUpdate({ belongsto: id } , {$push:  {posts: post_data} } , {new: true})
 
-    res.status(200).json({ message: "Post uploaded"  })
+    let post_data = { path: Postpath, desc: req.body.description, hidelike: req.body.hidelike, allowcommenting: req.body.allowcommenting, sharing: req.body.sharing, tags: req.body.tags, audience: req.body.audience }
+
+    await UserExtrasModel.findOneAndUpdate({ belongsto: id }, { $push: { posts: post_data } }, { new: true })
+
+    res.status(200).json({ message: "Post uploaded" })
+
+
+}
+
+
+export const PostMessage = async (req, res) => {
+    try {
+        const { sender, reciever, message, chat_type } = req.body
+        if (!sender || !reciever || !message || !chat_type) {
+            res.status(400).json({ error: "Missing required fields" })
+            return
+        }
+
+
+        const FindSender = await RegisterModel.findById(sender)
+
+        if (!FindSender) {
+            res.status(400).json({ error: "Sender account not found" })
+            return
+        }
+
+        const FindReciever = await RegisterModel.findById(reciever)
+        if (!FindReciever) {
+            res.status(400).json({ error: "Receiver account not found" })
+            return
+        }
+
+        const FindChatusers = await ChatRoomModel.find({ members: { $in: [sender, reciever] } })
+        if (FindChatusers.length > 0) {
+
+            const UpdateChat = await ChatRoomModel.findOneAndUpdate({ members: { $in: [sender, reciever] } }, { $push: { messages: [{ sender, message }] } })
+
+            if (UpdateChat) {
+                res.status(200).json({ message: "Message sent" })
+                return
+            }
+        }
+        else {
+
+            const Roomid = await GenerateChatroomId()
+            const created_chat = await ChatRoomModel.create({ members: [sender, reciever], Chatroomid: Roomid, messages: [{ sender, message }] })
+            
+            if (created_chat) {
+                res.status(200).json({ message: "Message sent" })
+                return
+            }
+
+        }
+
+
+
+    } catch (error) {
+        res.status(400).json({ error: "An error occured!" })
+    }
+
 
 
 }

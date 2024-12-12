@@ -14,8 +14,21 @@ const UserExtras = new mongoose.Schema({
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'userextra' }]
 })
 
+const Chatroom = new mongoose.Schema({
+
+    members:  [{ type: mongoose.Schema.Types.ObjectId , ref: 'userextra' }],
+    Chatroomid: {
+        required: true,
+        unique: true,
+        type: String
+    },
+    messages: Array,
 
 
+})
 
 export const UserExtrasModel =  mongoose.model('userextra' , UserExtras)
+export const ChatRoomModel = mongoose.model('chatroom' , Chatroom)
+
+
 

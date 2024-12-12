@@ -57,3 +57,18 @@ export const GenerateUsername =  async (givenName) => {
 
 
 }
+
+
+export const GenerateChatroomId = async () => {
+
+    let chatroomid = ""
+    let characters = "abcdefghijklmnopqrstuvwxyz1234567890-$#*"
+
+    for (let i = 0; i < 20; i++) {
+        const randVal = Math.floor(Math.random() * characters.length)
+        chatroomid = characters[randVal] + chatroomid
+    }
+
+    return chatroomid
+}
+
