@@ -45,7 +45,27 @@ export const Clientsockets = () => {
       }
 
       if (users[reciever]) {
-        io.to(users[reciever]).emit("recieved_message", { message, sender });
+
+        let unit = 'AM';
+        let newDate = new Date()
+
+        let time =  newDate.getTime()
+
+        let hour = newDate.getHours(time) % 12
+        hour = hour ? hour: 12
+
+        let mins = Number(newDate.getMinutes(time))
+        
+        if (newDate.getHours(time) > 12 && mins > 0 ) {
+            unit = "PM"
+        }
+        else{
+            unit  = "AM"
+        }
+        let timing = `${hour}:${mins} ${unit}`
+        console.log(timing);
+        
+        io.to(users[reciever]).emit("recieved_message", { message, sender , time: timing });
         callback({ success: true, message: `Message sent to ${reciever}.` });
       } else {
         callback({ success: false, message: `User ${reciever} is offline.` });

@@ -28,7 +28,7 @@ export default function App() {
 
   const [ChatUser, setChatUser] = useState("")
   const [UserOnline, setUserOnline] = useState(false)
-
+  const [MessageLists, setMessageLists] = useState([])
 
   socket = useRef(null)
   const dispatch = useDispatch()
@@ -55,7 +55,12 @@ export default function App() {
 
 
       socket.current.on("recieved_message", (res) => {
-        console.log(res)
+     
+        
+        setMessageLists((prev) => [...prev , {message: res.message , type: "reciever" , id: res.sender , time: res.time} ])
+
+
+        
       })
 
 
@@ -137,7 +142,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path='/profile' element={<Profile />} />
 
-            <Route path='/chat' element={<Userchat UserOnline={UserOnline } setChatUser={setChatUser } />} />
+            <Route path='/chat' element={<Userchat UserOnline={UserOnline} MessageLists={MessageLists} setMessageLists={setMessageLists} setChatUser={setChatUser } />} />
 
           </Route>
 

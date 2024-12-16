@@ -5,7 +5,7 @@ import { socket } from '../App';
 import { useFormsMutation } from '../redux/Apis/Apis';
 import { useLoggeduserdata } from '../hooks/useLoggeduserdata'
 
-function Userchat({ setCurrentUser , UserOnline }) {
+function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists }) {
 
 
     const [ActiveChat, setActiveChat] = useState(false)
@@ -15,7 +15,15 @@ function Userchat({ setCurrentUser , UserOnline }) {
     const [Chatuser, setChatUser] = useState({});
     const [Error, setError] = useState("");
     const [Message, setMessage] = useState("")
-    const [MessageLists, setMessageLists] = useState([])
+    const [ChatMessage, setChatMessage] = useState([])
+
+    useEffect(() => {
+        if (MessageLists.length > 0) {
+            setChatMessage(MessageLists)
+            console.log(MessageLists)
+        }
+    }, [MessageLists])
+
 
 
     useEffect(() => {
@@ -31,7 +39,7 @@ function Userchat({ setCurrentUser , UserOnline }) {
             setActiveChat(false)
             console.log("You exited the chat!")
         }
-    }, [Chatuser , setCurrentUser])
+    }, [Chatuser, setCurrentUser])
 
     useEffect(() => {
         const searched = window.location.search;
@@ -77,6 +85,25 @@ function Userchat({ setCurrentUser , UserOnline }) {
     const HandleSubmitMessage = async (e) => {
 
         e.preventDefault()
+        let unit = 'AM';
+        let newDate = new Date()
+
+        let time = newDate.getTime()
+
+        let hour = newDate.getHours(time) % 12
+        hour = hour ? hour : 12
+
+        let mins = Number(newDate.getMinutes(time))
+
+        if (newDate.getHours(time) > 12 && mins > 0) {
+            unit = "PM"
+        }
+        else {
+            unit = "AM"
+        }
+
+
+        let timing = `${hour}:${mins} ${unit}`
 
         if (!loadingLogged) {
 
@@ -91,8 +118,8 @@ function Userchat({ setCurrentUser , UserOnline }) {
             if (socket && socket.current) {
                 socket.current.emit("sendmessage", data, (res) => {
                     if (res.success) {
-                        
-                        setMessageLists((prev) => [...prev , {message: Message, type: "sender" }])
+
+                        setMessageLists((prev) => [...prev, { message: Message, type: "sender", time: timing }])
 
 
 
@@ -121,7 +148,7 @@ function Userchat({ setCurrentUser , UserOnline }) {
                         <img src={Chatuser?.dpimage} className='border-2 border-gray-300 rounded-full w-[40px] h-[40px]' alt="" />
                         <div className='flex flex-col gap-[10px] '>
                             <p className='text-white'>@{Chatuser?.belongsto?.username}</p>
-                       {UserOnline ? <p className='text-green-500 shadow-lg'>Online</p> : <p className='text-gray-300'>Offline</p> }
+                            {UserOnline ? <p className='text-green-500 shadow-lg'>Online</p> : <p className='text-gray-300'>Offline</p>}
                         </div>
                     </div>
 
@@ -131,13 +158,20 @@ function Userchat({ setCurrentUser , UserOnline }) {
 
 
                 <div className='min-h-[calc(100%-160px)] bg-gray-900  flex flex-col gap-[20px] w-full overflow-y-auto p-[20px] justify-end '>
-                    {MessageLists.map((value , index) => (
-                        value.type === "sender" ?  <div key={index} className='  min-h-[40px] w-full flex justify-end  text-white  rounded-lg'>
-                            
-                            <p className='max-w-[300px] rounded-lg px-[20px] bg-gray-800 flex items-center'>{value.message}</p>
-                        </div> : ""
-                        
+                    {ChatMessage.map((value, index) => (
+                        value.type === "sender" ? <div key={index} className='  min-h-[40px] w-full flex justify-end  text-white  rounded-lg'>
 
+                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 gap-[10px] flex items-center flex-col'><p className='w-full'>{value.message}</p> <span className='flex w-full text-[11px] text-gray-400'>{value.time}</span></div>
+
+                        </div> : Chatuser.belongsto._id === value?.id &&
+
+                        <div key={index} className='  min-h-[40px] w-full flex justify-start  text-white  rounded-lg'>
+
+                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 flex items-center gap-[10px] flex-col'><p className='w-full'>{value.message}</p> <span  className='flex w-full text-gray-400 text-[11px]'>{value.time}</span></div>
+
+
+
+                        </div>
                     ))}
                 </div>
 

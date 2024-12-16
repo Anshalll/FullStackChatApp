@@ -16,7 +16,7 @@ const AppLayout =  (Wrappedcomponent) => {
                 </header>
                 <main className="text-[13px] flex  h-[calc(100vh-80px)]">
                     <SidebarChat />
-                   {Wrappedcomponent &&  <Wrappedcomponent setCurrentUser={props.setChatUser}  UserOnline={props.UserOnline} />}
+                   {Wrappedcomponent &&  <Wrappedcomponent setCurrentUser={props.setChatUser}   UserOnline={props.UserOnline} setMessageLists={props.setMessageLists} MessageLists={props.MessageLists} />}
 
                 </main>
             </>
