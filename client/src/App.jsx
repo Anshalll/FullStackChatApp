@@ -9,8 +9,8 @@ import { setLoggeduserdata } from './redux/Loggeduser/Slice.js';
 import { io } from 'socket.io-client'
 import { useLoggeduserdata } from './hooks/useLoggeduserdata.js';
 import AppLayout from './layout/AppLayout.jsx';
-
-
+import {useChatdata} from './hooks/useChatdata.js'
+import {setPreChats} from './redux/premessages/slice.js'
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
@@ -29,6 +29,7 @@ export default function App() {
   const [ChatUser, setChatUser] = useState("")
   const [UserOnline, setUserOnline] = useState(false)
   const [MessageLists, setMessageLists] = useState([])
+  const {loading: loadingchat , error, chat} = useChatdata()
 
   socket = useRef(null)
   const dispatch = useDispatch()
@@ -46,16 +47,16 @@ export default function App() {
 
       }
       socket?.current.emit("register", userdata.belongsto?._id, (callback) => {
-        console.log(callback)
+        // console.log(callback)
       })
 
       socket.current.emit("online_users" , userdata.belongsto?._id, (callback) => {
-        console.log(callback)
+        // console.log(callback)
       }) 
 
 
       socket.current.on("recieved_message", (res) => {
-     
+      
         
         setMessageLists((prev) => [...prev , {message: res.message , type: "reciever" , id: res.sender , time: res.time} ])
 
@@ -121,6 +122,17 @@ export default function App() {
 
   }, [dispatch, VerifyUser, navigate]);
 
+
+  useEffect(() => {
+    if (!loadingchat) {
+
+      dispatch(setPreChats(chat))
+      
+    }
+    if (error) {
+      console.error("An error occured!")
+    }
+  } , [loadingchat , chat , error , dispatch]) 
 
   return (
 

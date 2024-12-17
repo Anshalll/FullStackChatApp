@@ -1,26 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import { socket } from '../App';
 import { useFormsMutation } from '../redux/Apis/Apis';
 import { useLoggeduserdata } from '../hooks/useLoggeduserdata'
-
+import { FetchChat } from '../redux/chat/slice';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists }) {
 
+    const ChatScrollerRef = useRef(null)
 
     const [ActiveChat, setActiveChat] = useState(false)
     const [SearchUser] = useFormsMutation();
-    const [SendMessage] = useFormsMutation();
     const { loggedUserData, loading: loadingLogged } = useLoggeduserdata()
     const [Chatuser, setChatUser] = useState({});
     const [Error, setError] = useState("");
     const [Message, setMessage] = useState("")
     const [ChatMessage, setChatMessage] = useState([])
+    const dispatch = useDispatch()
+    const {prechats} = useSelector((state) => state.PreChats)
+
 
     useEffect(() => {
         if (MessageLists.length > 0) {
             setChatMessage(MessageLists)
-            console.log(MessageLists)
+   
         }
     }, [MessageLists])
 
@@ -32,14 +37,14 @@ function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists })
 
         if (Chatuser && Chatuser.belongsto?._id) {
             setCurrentUser(Chatuser.belongsto?._id)
-
+            dispatch(FetchChat({path: '/api/getmessage' , data: [loggedUserData?.belongsto?._id , Chatuser?.belongsto?._id]}))
         }
 
         return () => {
             setActiveChat(false)
-            console.log("You exited the chat!")
+           
         }
-    }, [Chatuser, setCurrentUser])
+    }, [Chatuser, setCurrentUser , dispatch , loggedUserData ])
 
     useEffect(() => {
         const searched = window.location.search;
@@ -120,7 +125,7 @@ function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists })
                     if (res.success) {
 
                         setMessageLists((prev) => [...prev, { message: Message, type: "sender", time: timing }])
-
+                        setMessage("")
 
 
                     }
@@ -136,11 +141,19 @@ function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists })
 
     }
 
+    useEffect(() => {
+        if (ChatScrollerRef.current) {
+    
+            ChatScrollerRef.current.scrollTop = ChatScrollerRef.current.scrollHeight;
+        }
+    }, [ActiveChat , ChatMessage , prechats]);
+    
+
     return (
 
         <>
 
-            {Error ? <p className='w-[calc(100%-400px)] h-full flex items-center justify-center text-lg font-bold'>Page not found</p> : <div className='w-[calc(100%-400px)] h-full flex flex-col'>
+            {Error ? <p className='w-[calc(100%-400px)] h-full flex items-center justify-center text-lg font-bold'>Page not found</p> : <div  className='w-[calc(100%-400px)] h-full flex flex-col'>
 
                 <div className='bg-black h-[80px] flex items-center w-full px-[20px]'>
                     <div className='flex gap-[20px]  items-center'>
@@ -157,17 +170,25 @@ function Userchat({ setCurrentUser, UserOnline, MessageLists, setMessageLists })
                 </div>
 
 
-                <div className='min-h-[calc(100%-160px)] bg-gray-900  flex flex-col gap-[20px] w-full overflow-y-auto p-[20px] justify-end '>
-                    {ChatMessage.map((value, index) => (
-                        value.type === "sender" ? <div key={index} className='  min-h-[40px] w-full flex justify-end  text-white  rounded-lg'>
+                <div ref={ChatScrollerRef} className='min-h-[calc(100%-160px)] bg-gray-900 flex flex-col gap-[20px] w-full overflow-y-auto p-[20px] '>
 
-                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 gap-[10px] flex items-center flex-col'><p className='w-full'>{value.message}</p> <span className='flex w-full text-[11px] text-gray-400'>{value.time}</span></div>
+
+                    {prechats.length > 0 && prechats.map((value, index) => (
+                        <div className={`w-full flex items-center   ${value.sender === loggedUserData?.belongsto?._id ? "justify-end" : "justify-start"}`} key={index}>
+                            <div className='text-white max-w-[300px] rounded-lg p-[15px] bg-gray-800 gap-[10px] min-h-[30px] flex items-center flex-col'><p className='w-full'>{value.message}</p> <i className='flex w-full text-[11px] text-gray-400'>{value.timing}</i></div>
+                        </div>
+                    )) }
+
+                    {ChatMessage.map((value, index) => (
+                        value.type === "sender" ? <div key={index} className='w-full flex justify-end  text-white  rounded-lg'>
+
+                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 gap-[10px] min-h-[30px] flex items-center flex-col'><p className='w-full'>{value.message}</p> <i className='flex w-full text-[11px] text-gray-400'>{value.time}</i></div>
 
                         </div> : Chatuser.belongsto._id === value?.id &&
 
-                        <div key={index} className='  min-h-[40px] w-full flex justify-start  text-white  rounded-lg'>
+                        <div key={index} className='   w-full flex justify-start  text-white  rounded-lg'>
 
-                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 flex items-center gap-[10px] flex-col'><p className='w-full'>{value.message}</p> <span  className='flex w-full text-gray-400 text-[11px]'>{value.time}</span></div>
+                            <div className='max-w-[300px] rounded-lg p-[15px] bg-gray-800 flex items-center min-h-[30px]  gap-[10px] flex-col'><p className='w-full '>{value.message}</p> <i  className='flex w-full text-gray-400 text-[11px]'>{value.time}</i></div>
 
 
 

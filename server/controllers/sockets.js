@@ -1,6 +1,6 @@
 import { io } from "../index.js";
 import {ChatRoomModel} from '../models/AppModel.js'
-
+import {GetTime} from '../utils/getTime.js'
 
 
 let users = {};
@@ -37,7 +37,7 @@ export const Clientsockets = () => {
       }
     });
 
-    socket.on("sendmessage", (data, callback) => {
+    socket.on("sendmessage", async (data, callback) => {
       const { sender, reciever, message } = data;
 
       if (!users[sender]) {
@@ -46,24 +46,22 @@ export const Clientsockets = () => {
 
       if (users[reciever]) {
 
-        let unit = 'AM';
-        let newDate = new Date()
+        let timing = GetTime()
 
-        let time =  newDate.getTime()
+        let find_chat = await ChatRoomModel.findOne({ members: {$in : [sender, reciever]} })
+        if (find_chat) {
+          
+          let messages = find_chat.messages
+          messages.push({ sender , message ,  reciever , timing})
 
-        let hour = newDate.getHours(time) % 12
-        hour = hour ? hour: 12
+          await find_chat.save()
 
-        let mins = Number(newDate.getMinutes(time))
-        
-        if (newDate.getHours(time) > 12 && mins > 0 ) {
-            unit = "PM"
         }
         else{
-            unit  = "AM"
+          
+           await ChatRoomModel.create({ members:  [sender, reciever] , messages: [{ sender , message , reciever , timing}] })
+
         }
-        let timing = `${hour}:${mins} ${unit}`
-        console.log(timing);
         
         io.to(users[reciever]).emit("recieved_message", { message, sender , time: timing });
         callback({ success: true, message: `Message sent to ${reciever}.` });

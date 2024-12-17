@@ -1,10 +1,11 @@
 import {configureStore} from '@reduxjs/toolkit'
 import { AccessData } from './Apis/Apis'
-import AuthSlice from '../redux/AuthSlice/slice.js'
-import Loggeduserslice  from '../redux/Loggeduser/Slice.js'
-import SearchprofileSlice from '../redux/Searchedprofile/SearchprofileSlice.js'
-import LoggedStatsData from '../redux/LoggedStatsData/slice.js'
-
+import AuthSlice from './AuthSlice/slice.js'
+import Loggeduserslice  from './Loggeduser/Slice.js'
+import SearchprofileSlice from './Searchedprofile/SearchprofileSlice.js'
+import LoggedStatsData from './LoggedStatsData/slice.js'
+import ChatSlice from './chat/slice.js'
+import PreChats from './premessages/slice.js'
 export const store = configureStore({
 
     reducer: {
@@ -17,8 +18,9 @@ export const store = configureStore({
 
         SearchprofileSlice: SearchprofileSlice,
 
-        LoggedStatsData: LoggedStatsData
-        
+        LoggedStatsData: LoggedStatsData,
+        ChatSlice: ChatSlice,
+        PreChats: PreChats
 
       },
      

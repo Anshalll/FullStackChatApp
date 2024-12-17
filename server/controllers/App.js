@@ -2,6 +2,7 @@ import { UserExtrasModel, ChatRoomModel } from '../models/AppModel.js'
 import { RegisterModel } from '../models/registerModel.js'
 import { FileUpload, DeleteImg, Postupload } from '../utils/FileUpload.js'
 import { GenerateChatroomId } from '../utils/GenerateVals.js'
+
 export const UpdateProfile = async (req, res) => {
 
     const { name, username, bio, interests, uid } = req.body
@@ -284,7 +285,7 @@ export const PostMessage = async (req, res) => {
 
             const Roomid = await GenerateChatroomId()
             const created_chat = await ChatRoomModel.create({ members: [sender, reciever], Chatroomid: Roomid, messages: [{ sender, message }] })
-            
+
             if (created_chat) {
                 res.status(200).json({ message: "Message sent" })
                 return
@@ -296,6 +297,29 @@ export const PostMessage = async (req, res) => {
 
     } catch (error) {
         res.status(400).json({ error: "An error occured!" })
+    }
+
+
+
+}
+
+
+export const GetMessages = async (req, res) => {
+
+    try {
+
+
+        const findChatMessage = await ChatRoomModel.findOne({ members: { $in: req.body } })
+        if (findChatMessage && findChatMessage.messages) {
+            res.status(200).json({ data: findChatMessage.messages })
+
+        }
+        else {
+            res.status(200).json({ data: [] })
+        }
+    } catch (err) {
+      
+        res.status(400).json({ error: "An error occured" })
     }
 
 
